@@ -1,0 +1,91 @@
+## 1. General & OS Specific
+.DS_Store
+.DS_Store?
+._*
+Thumbs.db
+desktop.ini
+.history/
+/connect.lock
+/libpeerconnection.log
+testem.log
+/typings
+__screenshots__/
+
+## 2. IDEs and Editors
+# JetBrains (Rider, WebStorm, etc.)
+.idea/
+*.sln.iml
+*.iml
+_ReSharper.Caches/
+cmake-build-*/
+
+# Visual Studio
+.vs/
+*.user
+*.userosscache
+*.sln.docstates
+*.suo
+*.project
+*.classpath
+.c9/
+*.launch
+.settings/
+*.sublime-workspace
+
+# VS Code
+.vscode/*
+Frontend/.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+!.vscode/mcp.json
+
+## 3. .NET Backend
+# Build results
+[Bb]in/
+[Oo]bj/
+/backend/[Bb]in/
+/backend/[Oo]bj/
+/backend/TestResults/
+
+# Configuration & Secrets
+appsettings.Development.json
+usersecrets.json
+*.filetransform
+
+## 4. Frontend (Angular / Node)
+# Dependencies
+node_modules/
+/frontend/node_modules/
+
+# Angular specific
+.angular/
+/frontend/.angular/
+.sass-cache/
+/coverage
+/frontend/coverage/
+
+# Build output
+dist/
+/frontend/dist/
+/tmp
+/out-tsc
+/bazel-out
+/frontend/build/
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Local environment files
+.env
+.env.local
+.env.*.local
+!.env.example
+
+## 5. Databases
+*.db
+*.sqlite
+*.log
