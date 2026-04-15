@@ -1,1 +1,684 @@
-/* You can add global styles to this file, and also import other style files */
+// ============================================================
+//  TOUR PLANNER — Neo Sci-Fi Global Design System
+//  A dark, immersive interface with cyan/magenta neon accents,
+//  glowing edges, and futuristic typography.
+// ============================================================
+
+// ─── Google Fonts Import ────────────────────────────────────
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&family=Rajdhani:wght@300;400;500;600;700&family=Share+Tech+Mono&display=swap');
+
+// ============================================================
+//  1. COLOR SYSTEM — Root Variables
+// ============================================================
+:root {
+  // ── Core Background Layers ──
+  --bg-void:          #05080f;          // deepest layer
+  --bg-base:          #0a0e1a;          // main app background
+  --bg-surface:       #0f1528;          // cards, panels
+  --bg-surface-hover: #151d35;          // hover state for surfaces
+  --bg-elevated:      #1a2340;          // modals, dropdowns, popovers
+  --bg-input:         #0c1120;          // form input fields
+
+  // ── Neon Accent: Cyan (Primary) ──
+  --cyan-100:         #e0fbff;
+  --cyan-200:         #a8f0fb;
+  --cyan-300:         #5ee4f5;
+  --cyan-400:         #00d4ff;          // hero accent
+  --cyan-500:         #00b8db;
+  --cyan-600:         #0090aa;
+  --cyan-glow:        rgba(0, 212, 255, 0.35);
+  --cyan-glow-strong: rgba(0, 212, 255, 0.55);
+
+  // ── Neon Accent: Magenta (Secondary) ──
+  --magenta-100:      #ffe0f6;
+  --magenta-200:      #ffb0e6;
+  --magenta-300:      #ff6ad5;
+  --magenta-400:      #e930a8;          // secondary accent
+  --magenta-500:      #c0208a;
+  --magenta-glow:     rgba(233, 48, 168, 0.35);
+
+  // ── Neon Accent: Violet (Tertiary) ──
+  --violet-400:       #8b5cf6;
+  --violet-500:       #7340e0;
+  --violet-glow:      rgba(139, 92, 246, 0.3);
+
+  // ── Semantic Colors ──
+  --success:          #00e68a;
+  --success-glow:     rgba(0, 230, 138, 0.3);
+  --warning:          #ffbe0b;
+  --warning-glow:     rgba(255, 190, 11, 0.25);
+  --danger:           #ff3b5c;
+  --danger-glow:      rgba(255, 59, 92, 0.3);
+  --info:             var(--cyan-400);
+
+  // ── Text Hierarchy ──
+  --text-primary:     #e8edf5;
+  --text-secondary:   #8b95b0;
+  --text-muted:       #505a72;
+  --text-accent:      var(--cyan-300);
+  --text-on-accent:   #050810;
+
+  // ── Borders & Dividers ──
+  --border-subtle:    rgba(255, 255, 255, 0.06);
+  --border-default:   rgba(255, 255, 255, 0.1);
+  --border-accent:    rgba(0, 212, 255, 0.25);
+  --border-glow:      rgba(0, 212, 255, 0.5);
+
+  // ── Shadows & Glows ──
+  --shadow-sm:        0 1px 3px rgba(0, 0, 0, 0.5);
+  --shadow-md:        0 4px 16px rgba(0, 0, 0, 0.6);
+  --shadow-lg:        0 8px 40px rgba(0, 0, 0, 0.7);
+  --shadow-glow-cyan: 0 0 20px var(--cyan-glow), 0 0 60px rgba(0, 212, 255, 0.1);
+  --shadow-glow-mag:  0 0 20px var(--magenta-glow), 0 0 60px rgba(233, 48, 168, 0.1);
+  --shadow-inset:     inset 0 1px 0 rgba(255, 255, 255, 0.04);
+
+  // ── Spacing Scale ──
+  --space-xs:   4px;
+  --space-sm:   8px;
+  --space-md:   16px;
+  --space-lg:   24px;
+  --space-xl:   32px;
+  --space-2xl:  48px;
+  --space-3xl:  64px;
+
+  // ── Border Radius ──
+  --radius-sm:  4px;
+  --radius-md:  8px;
+  --radius-lg:  12px;
+  --radius-xl:  16px;
+  --radius-pill: 999px;
+
+  // ── Typography ──
+  --font-display:  'Orbitron', sans-serif;       // headings, logos, hero text
+  --font-body:     'Rajdhani', sans-serif;        // body text, UI labels
+  --font-mono:     'Share Tech Mono', monospace;  // data, stats, code
+
+  --text-xs:   0.75rem;    // 12px
+  --text-sm:   0.875rem;   // 14px
+  --text-base: 1rem;       // 16px
+  --text-lg:   1.125rem;   // 18px
+  --text-xl:   1.25rem;    // 20px
+  --text-2xl:  1.5rem;     // 24px
+  --text-3xl:  1.875rem;   // 30px
+  --text-4xl:  2.25rem;    // 36px
+  --text-5xl:  3rem;       // 48px
+
+  // ── Transitions ──
+  --transition-fast:   150ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-base:   250ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-slow:   400ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-spring: 500ms cubic-bezier(0.34, 1.56, 0.64, 1);
+
+  // ── Z-Index Scale ──
+  --z-base:     1;
+  --z-dropdown: 100;
+  --z-sticky:   200;
+  --z-overlay:  300;
+  --z-modal:    400;
+  --z-toast:    500;
+}
+
+
+// ============================================================
+//  2. RESET & BASE
+// ============================================================
+*,
+*::before,
+*::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  font-size: 16px;
+  scroll-behavior: smooth;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  font-family: var(--font-body);
+  font-weight: 400;
+  font-size: var(--text-base);
+  line-height: 1.6;
+  color: var(--text-primary);
+  background-color: var(--bg-base);
+  min-height: 100vh;
+  overflow-x: hidden;
+
+  // Subtle grid texture overlay
+  background-image:
+    linear-gradient(rgba(0, 212, 255, 0.015) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 212, 255, 0.015) 1px, transparent 1px);
+  background-size: 60px 60px;
+}
+
+
+// ============================================================
+//  3. TYPOGRAPHY
+// ============================================================
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-display);
+  font-weight: 700;
+  line-height: 1.2;
+  color: var(--text-primary);
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+
+h1 {
+  font-size: var(--text-4xl);
+  letter-spacing: 0.06em;
+  background: linear-gradient(135deg, var(--cyan-300), var(--cyan-400), var(--magenta-300));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+h2 {
+  font-size: var(--text-3xl);
+  color: var(--cyan-200);
+}
+
+h3 {
+  font-size: var(--text-2xl);
+}
+
+h4 {
+  font-size: var(--text-xl);
+  font-weight: 600;
+}
+
+h5 {
+  font-size: var(--text-lg);
+  font-weight: 500;
+}
+
+h6 {
+  font-size: var(--text-base);
+  font-weight: 500;
+  color: var(--text-secondary);
+}
+
+p {
+  margin-bottom: var(--space-md);
+  color: var(--text-secondary);
+}
+
+a {
+  color: var(--cyan-400);
+  text-decoration: none;
+  transition: color var(--transition-fast), text-shadow var(--transition-fast);
+
+  &:hover {
+    color: var(--cyan-300);
+    text-shadow: 0 0 8px var(--cyan-glow);
+  }
+}
+
+small {
+  font-size: var(--text-sm);
+  color: var(--text-muted);
+}
+
+code, .mono {
+  font-family: var(--font-mono);
+}
+
+strong {
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+::selection {
+  background: var(--cyan-400);
+  color: var(--text-on-accent);
+}
+
+
+// ============================================================
+//  4. CARD / PANEL SYSTEM
+// ============================================================
+.card {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  padding: var(--space-lg);
+  box-shadow: var(--shadow-sm), var(--shadow-inset);
+  transition: border-color var(--transition-base), box-shadow var(--transition-base);
+  position: relative;
+  overflow: hidden;
+
+  // Subtle top-edge glow line
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(
+        90deg,
+        transparent,
+        var(--cyan-400) 30%,
+        var(--magenta-400) 70%,
+        transparent
+    );
+    opacity: 0.3;
+    transition: opacity var(--transition-base);
+  }
+
+  &:hover {
+    border-color: var(--border-accent);
+    box-shadow: var(--shadow-md), var(--shadow-glow-cyan);
+
+    &::before {
+      opacity: 0.7;
+    }
+  }
+}
+
+.card--elevated {
+  background: var(--bg-elevated);
+  box-shadow: var(--shadow-md);
+}
+
+
+// ============================================================
+//  5. BUTTONS
+// ============================================================
+.btn {
+  font-family: var(--font-display);
+  font-size: var(--text-sm);
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: var(--space-sm) var(--space-lg);
+  border: 1px solid transparent;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-sm);
+  transition:
+    background var(--transition-fast),
+    border-color var(--transition-fast),
+    box-shadow var(--transition-fast),
+    transform var(--transition-fast);
+  position: relative;
+  overflow: hidden;
+
+  &:active {
+    transform: scale(0.97);
+  }
+
+  &:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+    pointer-events: none;
+  }
+}
+
+.btn--primary {
+  background: linear-gradient(135deg, var(--cyan-500), var(--cyan-400));
+  color: var(--text-on-accent);
+  border-color: var(--cyan-400);
+
+  &:hover {
+    background: linear-gradient(135deg, var(--cyan-400), var(--cyan-300));
+    box-shadow: var(--shadow-glow-cyan);
+  }
+}
+
+.btn--secondary {
+  background: transparent;
+  color: var(--cyan-400);
+  border-color: var(--border-accent);
+
+  &:hover {
+    background: rgba(0, 212, 255, 0.08);
+    border-color: var(--cyan-400);
+    box-shadow: var(--shadow-glow-cyan);
+  }
+}
+
+.btn--danger {
+  background: transparent;
+  color: var(--danger);
+  border-color: rgba(255, 59, 92, 0.3);
+
+  &:hover {
+    background: rgba(255, 59, 92, 0.1);
+    border-color: var(--danger);
+    box-shadow: 0 0 20px var(--danger-glow);
+  }
+}
+
+.btn--ghost {
+  background: transparent;
+  color: var(--text-secondary);
+  border-color: transparent;
+
+  &:hover {
+    color: var(--text-primary);
+    background: rgba(255, 255, 255, 0.04);
+  }
+}
+
+.btn--icon {
+  padding: var(--space-sm);
+  border-radius: var(--radius-md);
+  aspect-ratio: 1;
+}
+
+
+// ============================================================
+//  6. FORM INPUTS
+// ============================================================
+input[type="text"],
+input[type="email"],
+input[type="password"],
+input[type="number"],
+input[type="date"],
+input[type="datetime-local"],
+input[type="search"],
+textarea,
+select {
+  font-family: var(--font-body);
+  font-size: var(--text-base);
+  font-weight: 500;
+  color: var(--text-primary);
+  background: var(--bg-input);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-md);
+  padding: 10px var(--space-md);
+  width: 100%;
+  transition:
+    border-color var(--transition-fast),
+    box-shadow var(--transition-fast),
+    background var(--transition-fast);
+  outline: none;
+
+  &::placeholder {
+    color: var(--text-muted);
+    font-weight: 400;
+  }
+
+  &:focus {
+    border-color: var(--cyan-400);
+    box-shadow: 0 0 0 3px var(--cyan-glow), var(--shadow-glow-cyan);
+    background: var(--bg-surface);
+  }
+
+  &:hover:not(:focus) {
+    border-color: var(--border-accent);
+  }
+
+  &.ng-invalid.ng-touched {
+    border-color: var(--danger);
+    box-shadow: 0 0 0 3px var(--danger-glow);
+  }
+}
+
+textarea {
+  resize: vertical;
+  min-height: 100px;
+}
+
+select {
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%2300d4ff' stroke-width='1.5' fill='none'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  padding-right: 36px;
+  cursor: pointer;
+}
+
+label {
+  font-family: var(--font-display);
+  font-size: var(--text-xs);
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-bottom: var(--space-xs);
+  display: block;
+}
+
+.form-group {
+  margin-bottom: var(--space-lg);
+}
+
+.form-error {
+  font-size: var(--text-sm);
+  color: var(--danger);
+  margin-top: var(--space-xs);
+}
+
+
+// ============================================================
+//  7. TABLE
+// ============================================================
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: var(--font-body);
+}
+
+th {
+  font-family: var(--font-display);
+  font-size: var(--text-xs);
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  text-align: left;
+  padding: var(--space-sm) var(--space-md);
+  border-bottom: 1px solid var(--border-default);
+  background: var(--bg-void);
+}
+
+td {
+  padding: var(--space-sm) var(--space-md);
+  border-bottom: 1px solid var(--border-subtle);
+  color: var(--text-secondary);
+  font-size: var(--text-sm);
+}
+
+tr {
+  transition: background var(--transition-fast);
+
+  &:hover {
+    background: var(--bg-surface-hover);
+  }
+}
+
+
+// ============================================================
+//  8. BADGES & CHIPS
+// ============================================================
+.badge {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  font-weight: 500;
+  padding: 2px 10px;
+  border-radius: var(--radius-pill);
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  letter-spacing: 0.04em;
+  border: 1px solid;
+}
+
+.badge--cyan {
+  color: var(--cyan-300);
+  border-color: rgba(0, 212, 255, 0.3);
+  background: rgba(0, 212, 255, 0.08);
+}
+
+.badge--magenta {
+  color: var(--magenta-300);
+  border-color: rgba(233, 48, 168, 0.3);
+  background: rgba(233, 48, 168, 0.08);
+}
+
+.badge--success {
+  color: var(--success);
+  border-color: rgba(0, 230, 138, 0.3);
+  background: rgba(0, 230, 138, 0.08);
+}
+
+.badge--warning {
+  color: var(--warning);
+  border-color: rgba(255, 190, 11, 0.3);
+  background: rgba(255, 190, 11, 0.08);
+}
+
+.badge--danger {
+  color: var(--danger);
+  border-color: rgba(255, 59, 92, 0.3);
+  background: rgba(255, 59, 92, 0.08);
+}
+
+
+// ============================================================
+//  9. SCROLLBAR
+// ============================================================
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg-void);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border-default);
+  border-radius: var(--radius-pill);
+
+  &:hover {
+    background: var(--cyan-600);
+  }
+}
+
+
+// ============================================================
+//  10. UTILITY CLASSES
+// ============================================================
+
+// ── Text ──
+.text-cyan    { color: var(--cyan-400); }
+.text-magenta { color: var(--magenta-400); }
+.text-success { color: var(--success); }
+.text-warning { color: var(--warning); }
+.text-danger  { color: var(--danger); }
+.text-muted   { color: var(--text-muted); }
+.text-mono    { font-family: var(--font-mono); }
+
+// ── Glow Effects ──
+.glow-cyan {
+  text-shadow: 0 0 10px var(--cyan-glow), 0 0 30px rgba(0, 212, 255, 0.15);
+}
+
+.glow-magenta {
+  text-shadow: 0 0 10px var(--magenta-glow), 0 0 30px rgba(233, 48, 168, 0.15);
+}
+
+// ── Neon Underline ──
+.neon-underline {
+  position: relative;
+  display: inline-block;
+
+  &::after {
+    content: '';
+    position: absolute;
+    bottom: -4px;
+    left: 0;
+    width: 100%;
+    height: 2px;
+    background: linear-gradient(90deg, var(--cyan-400), var(--magenta-400));
+    box-shadow: 0 0 8px var(--cyan-glow);
+    border-radius: 2px;
+  }
+}
+
+// ── Divider ──
+.divider {
+  border: none;
+  height: 1px;
+  background: linear-gradient(
+      90deg,
+      transparent,
+      var(--border-default) 20%,
+      var(--border-accent) 50%,
+      var(--border-default) 80%,
+      transparent
+  );
+  margin: var(--space-xl) 0;
+}
+
+// ── Flex helpers ──
+.flex          { display: flex; }
+.flex-col      { flex-direction: column; }
+.items-center  { align-items: center; }
+.justify-between { justify-content: space-between; }
+.gap-sm        { gap: var(--space-sm); }
+.gap-md        { gap: var(--space-md); }
+.gap-lg        { gap: var(--space-lg); }
+
+
+// ============================================================
+//  11. ANIMATIONS
+// ============================================================
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes pulseGlow {
+  0%, 100% { box-shadow: 0 0 8px var(--cyan-glow); }
+  50%      { box-shadow: 0 0 20px var(--cyan-glow-strong), 0 0 40px var(--cyan-glow); }
+}
+
+@keyframes scanline {
+  0%   { transform: translateY(-100%); }
+  100% { transform: translateY(100vh); }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.4s ease-out both;
+}
+
+.animate-pulse-glow {
+  animation: pulseGlow 2.5s ease-in-out infinite;
+}
+
+
+// ============================================================
+//  12. ANGULAR-SPECIFIC OVERRIDES
+// ============================================================
+
+// Ensure Angular component :host fills space
+:host {
+  display: block;
+}
+
+// Router outlet transitions
+router-outlet + * {
+  animation: fadeIn 0.3s ease-out both;
+}
+
+// Angular Material / CDK overlay backdrop (if used)
+.cdk-overlay-backdrop {
+  background: rgba(5, 8, 15, 0.75);
+  backdrop-filter: blur(4px);
+}
+
+// Tooltip style
+[matTooltip],
+.tooltip {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+}
