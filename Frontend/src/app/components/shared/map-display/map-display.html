@@ -1,0 +1,23 @@
+<div class="map-wrapper" [style.height]="height">
+
+  @if (interactive) {
+    <div class="map-hud">
+      <div class="hud-chip" [class.active]="selectingFrom()">
+        <span class="hud-dot hud-dot--from"></span>
+        Click to set start
+      </div>
+      <div class="hud-chip" [class.active]="!selectingFrom()">
+        <span class="hud-dot hud-dot--to"></span>
+        Click to set destination
+      </div>
+    </div>
+  }
+
+  <div #mapContainer class="map-canvas"></div>
+
+  <div class="corner corner--tl"></div>
+  <div class="corner corner--tr"></div>
+  <div class="corner corner--bl"></div>
+  <div class="corner corner--br"></div>
+
+</div>

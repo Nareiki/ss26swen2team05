@@ -1,9 +1,9 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { MapPlaceholder } from './map-placeholder';
+import { MapDisplayComponent } from './map-display';
 
 describe('MapPlaceholder', () => {
-  let component: MapPlaceholder;
+  let component: MapDisplayComponent;
   let fixture: ComponentFixture<MapPlaceholder>;
 
   beforeEach(async () => {
