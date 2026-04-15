@@ -45,6 +45,7 @@ export class MapDisplayComponent implements AfterViewInit, OnDestroy, OnChanges 
   private routeLayer: L.GeoJSON | null = null;
   private glowLayer: L.GeoJSON | null = null;
   private dashedLine: L.Polyline | null = null;
+  private clickHandlerRegistered = false;
 
   private fromIcon = L.divIcon({
     className: 'custom-marker custom-marker--from',
@@ -66,6 +67,15 @@ export class MapDisplayComponent implements AfterViewInit, OnDestroy, OnChanges 
       this.updateRoute();
     }
     if (changes['center'] || changes['zoom']) this.map.setView(this.center, this.zoom);
+
+    // Handle interactive toggle dynamically
+    if (changes['interactive']) {
+      this.setupClickHandler();
+      // Reset selection state when entering interactive mode
+      if (this.interactive) {
+        this.selectingFrom.set(true);
+      }
+    }
   }
 
   ngOnDestroy(): void { this.map?.remove(); }
@@ -86,30 +96,44 @@ export class MapDisplayComponent implements AfterViewInit, OnDestroy, OnChanges 
     L.control.zoom({ position: 'bottomright' }).addTo(this.map);
     setTimeout(() => this.map.invalidateSize(), 200);
 
-    if (this.interactive) {
-      this.map.on('click', (e: L.LeafletMouseEvent) => {
-        const latlng: [number, number] = [e.latlng.lat, e.latlng.lng];
-        if (this.selectingFrom()) {
-          this.setFromMarker(latlng);
-          this.fromSelected.emit(latlng);
-        } else {
-          this.setToMarker(latlng);
-          this.toSelected.emit(latlng);
-        }
-        this.selectingFrom.update(v => !v);
-      });
-    }
+    // Always register the click handler — it checks `interactive` at click time
+    this.setupClickHandler();
 
     this.updateMarkers();
     this.updateRoute();
     this.mapReady.emit(this.map);
   }
 
+  // Click handler is always on the map, but only acts when interactive=true
+  private setupClickHandler(): void {
+    if (this.clickHandlerRegistered || !this.map) return;
+    this.clickHandlerRegistered = true;
+
+    this.map.on('click', (e: L.LeafletMouseEvent) => {
+      // Only respond when interactive mode is on
+      if (!this.interactive) return;
+
+      const latlng: [number, number] = [e.latlng.lat, e.latlng.lng];
+      if (this.selectingFrom()) {
+        this.setFromMarker(latlng);
+        this.fromSelected.emit(latlng);
+      } else {
+        this.setToMarker(latlng);
+        this.toSelected.emit(latlng);
+      }
+      this.selectingFrom.update(v => !v);
+    });
+  }
+
   // ── Markers ──
 
   private updateMarkers(): void {
     if (this.from) this.setFromMarker(this.from);
+    else if (this.fromMarker) { this.map.removeLayer(this.fromMarker); this.fromMarker = null; }
+
     if (this.to) this.setToMarker(this.to);
+    else if (this.toMarker) { this.map.removeLayer(this.toMarker); this.toMarker = null; }
+
     this.fitBoundsToMarkers();
   }
 
@@ -136,12 +160,10 @@ export class MapDisplayComponent implements AfterViewInit, OnDestroy, OnChanges 
   // ── Route + Dashed Fallback ──
 
   private updateRoute(): void {
-    // Clear existing layers
     if (this.routeLayer) { this.map.removeLayer(this.routeLayer); this.routeLayer = null; }
     if (this.glowLayer) { this.map.removeLayer(this.glowLayer); this.glowLayer = null; }
     if (this.dashedLine) { this.map.removeLayer(this.dashedLine); this.dashedLine = null; }
 
-    // If we have real route data, draw it
     if (this.routeGeoJson) {
       this.routeLayer = L.geoJSON(this.routeGeoJson, {
         style: () => ({ color: '#00d4ff', weight: 4, opacity: 0.9 })
@@ -155,14 +177,10 @@ export class MapDisplayComponent implements AfterViewInit, OnDestroy, OnChanges 
       return;
     }
 
-    // No route data — draw dashed line between from/to as fallback
     if (this.from && this.to) {
       this.dashedLine = L.polyline([this.from, this.to], {
-        color: '#00d4ff',
-        weight: 2,
-        opacity: 0.5,
-        dashArray: '8, 12',
-        dashOffset: '0'
+        color: '#00d4ff', weight: 2, opacity: 0.5,
+        dashArray: '8, 12', dashOffset: '0'
       }).addTo(this.map);
     }
   }

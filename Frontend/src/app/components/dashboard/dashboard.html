@@ -1,6 +1,5 @@
 <div class="dashboard">
 
-  <!-- Top Bar -->
   <header class="topbar">
     <div class="topbar-left">
       <svg class="logo-icon" viewBox="0 0 40 40" fill="none">
@@ -14,7 +13,6 @@
     </div>
   </header>
 
-  <!-- Main Content -->
   <div class="workspace">
 
     <!-- Left: Tour List -->
@@ -28,32 +26,40 @@
       </app-tour-list>
     </aside>
 
-    <!-- Center: Map -->
+    <!-- Center: Map (interactive when form is open) -->
     <section class="panel-map">
-      @if (selectedTour(); as tour) {
-        <app-map-display
-          [from]="tour.fromCoords"
-          [to]="tour.toCoords"
-          [routeGeoJson]="tour.routeGeoJson"
-          height="100%">
-        </app-map-display>
-      } @else {
-        <app-map-display height="100%"></app-map-display>
-      }
+      <app-map-display
+        [from]="mapFrom()"
+        [to]="mapTo()"
+        [routeGeoJson]="mapRouteGeoJson()"
+        [interactive]="showForm()"
+        (fromSelected)="onMapFromSelected($event)"
+        (toSelected)="onMapToSelected($event)"
+        height="100%">
+      </app-map-display>
     </section>
 
-    <!-- Right: Tour Detail -->
+    <!-- Right: Detail OR Form -->
     <aside class="panel-detail">
-      <app-tour-detail
-        [tour]="selectedTour()"
-        [logs]="selectedTourLogs()"
-        (editTour)="onTourEdit($event)"
-        (deleteTour)="onTourDelete($event)"
-        (exportTour)="onExportTour($event)"
-        (addLog)="onAddLog($event)"
-        (editLog)="onEditLog($event)"
-        (deleteLog)="onDeleteLog($event)">
-      </app-tour-detail>
+      @if (showForm()) {
+        <app-tour-form
+          [tour]="editingTour()"
+          [userId]="currentUserId()"
+          (tourSaved)="onFormSave($event)"
+          (cancel)="onFormCancel()">
+        </app-tour-form>
+      } @else {
+        <app-tour-detail
+          [tour]="selectedTour()"
+          [logs]="selectedTourLogs()"
+          (editTour)="onTourEdit($event)"
+          (deleteTour)="onTourDelete($event)"
+          (exportTour)="onExportTour($event)"
+          (addLog)="onAddLog($event)"
+          (editLog)="onEditLog($event)"
+          (deleteLog)="onDeleteLog($event)">
+        </app-tour-detail>
+      }
     </aside>
 
   </div>

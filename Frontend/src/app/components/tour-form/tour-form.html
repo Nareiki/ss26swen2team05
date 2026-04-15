@@ -1,1 +1,140 @@
-<p>tour-form works!</p>
+<div class="form-panel">
+
+  <!-- Header -->
+  <div class="form-header">
+    <h3 class="form-title">{{ isEditMode() ? 'Edit Tour' : 'New Tour' }}</h3>
+    <button class="icon-btn" (click)="onCancel()" title="Close">
+      <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"/></svg>
+    </button>
+  </div>
+
+  <!-- Form -->
+  <div class="form-scroll">
+
+    <!-- Name -->
+    <div class="field">
+      <label>Tour Name</label>
+      <input
+        type="text"
+        placeholder="e.g. Wien → Graz"
+        [value]="name()"
+        (input)="onFieldChange('name', $event)"
+        [class.invalid]="errors()['name']"
+      />
+      @if (errors()['name']) {
+        <span class="field-error">{{ errors()['name'] }}</span>
+      }
+    </div>
+
+    <!-- Transport Type -->
+    <div class="field">
+      <label>Transport Type</label>
+      <div class="transport-selector">
+        @for (type of transportTypes; track type.value) {
+          <button
+            class="transport-option"
+            [class.selected]="transportType() === type.value"
+            (click)="onTransportChange(type.value)">
+            {{ type.label }}
+          </button>
+        }
+      </div>
+    </div>
+
+    <!-- From -->
+    <div class="field">
+      <label>From</label>
+      <div class="input-with-status">
+        <input
+          type="text"
+          placeholder="Start location or click on map"
+          [value]="from()"
+          (input)="onFieldChange('from', $event)"
+          (blur)="onFromBlur()"
+          [class.invalid]="errors()['from']"
+        />
+        @if (fromCoords()) {
+          <span class="coord-badge" title="Coordinates found">📍</span>
+        }
+      </div>
+      @if (errors()['from']) {
+        <span class="field-error">{{ errors()['from'] }}</span>
+      }
+    </div>
+
+    <!-- To -->
+    <div class="field">
+      <label>To</label>
+      <div class="input-with-status">
+        <input
+          type="text"
+          placeholder="Destination or click on map"
+          [value]="to()"
+          (input)="onFieldChange('to', $event)"
+          (blur)="onToBlur()"
+          [class.invalid]="errors()['to']"
+        />
+        @if (toCoords()) {
+          <span class="coord-badge" title="Coordinates found">📍</span>
+        }
+      </div>
+      @if (errors()['to']) {
+        <span class="field-error">{{ errors()['to'] }}</span>
+      }
+    </div>
+
+    <!-- Description -->
+    <div class="field">
+      <label>Description <span class="optional">(optional)</span></label>
+      <textarea
+        placeholder="Describe the tour..."
+        rows="3"
+        [value]="description()"
+        (input)="onFieldChange('description', $event)"
+      ></textarea>
+    </div>
+
+    <!-- Route Stats (auto-calculated) -->
+    @if (distance() > 0 || estimatedTime() > 0) {
+      <div class="route-stats">
+        <div class="route-stat">
+          <span class="route-stat-label">Distance</span>
+          <span class="route-stat-value">{{ distance() }} km</span>
+        </div>
+        <div class="route-stat">
+          <span class="route-stat-label">Est. Time</span>
+          <span class="route-stat-value">{{ formatTime(estimatedTime()) }}</span>
+        </div>
+      </div>
+    }
+
+    <!-- Status / Loading -->
+    @if (statusMessage()) {
+      <div class="status-msg" [class.loading]="isLoading()">
+        @if (isLoading()) {
+          <span class="spinner"></span>
+        }
+        <span>{{ statusMessage() }}</span>
+      </div>
+    }
+
+    <!-- Hint -->
+    <div class="form-hint">
+      <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/></svg>
+      <span>Type a location name or click on the map to set start and destination. Route is calculated automatically.</span>
+    </div>
+
+  </div>
+
+  <!-- Actions -->
+  <div class="form-actions">
+    <button class="btn-cancel" (click)="onCancel()">Cancel</button>
+    <button class="btn-save" (click)="onSave()" [disabled]="isLoading()">
+      @if (isLoading()) {
+        <span class="spinner spinner--sm"></span>
+      }
+      {{ isEditMode() ? 'Save Changes' : 'Create Tour' }}
+    </button>
+  </div>
+
+</div>

@@ -28,6 +28,10 @@ export class TourListComponent {
   searchQuery = signal('');
   selectedTourId = signal<number | null>(null);
 
+  // Delete confirmation state
+  showDeleteConfirm = signal(false);
+  tourToDelete = signal<Tour | null>(null);
+
   filteredTours = computed(() => {
     const q = this.searchQuery().toLowerCase().trim();
     const tours = this.allTours();
@@ -39,7 +43,6 @@ export class TourListComponent {
       t.from.toLowerCase().includes(q) ||
       t.to.toLowerCase().includes(q) ||
       t.transportType.toLowerCase().includes(q) ||
-      // Search computed values as per requirements
       `popularity ${t.popularity}`.includes(q) ||
       `child-friendly ${t.childFriendliness}`.includes(q)
     );
@@ -56,6 +59,7 @@ export class TourListComponent {
   }
 
   onCreate(): void {
+    console.log('onCreate called');
     this.tourCreate.emit();
   }
 
@@ -64,9 +68,25 @@ export class TourListComponent {
     this.tourEdit.emit(tour);
   }
 
-  onDelete(event: Event, tour: Tour): void {
+  // Delete flow: show confirm popup
+  onDeleteClick(event: Event, tour: Tour): void {
     event.stopPropagation();
-    this.tourDelete.emit(tour);
+    this.tourToDelete.set(tour);
+    this.showDeleteConfirm.set(true);
+  }
+
+  onConfirmDelete(): void {
+    const tour = this.tourToDelete();
+    if (tour) {
+      this.tourDelete.emit(tour);
+    }
+    this.showDeleteConfirm.set(false);
+    this.tourToDelete.set(null);
+  }
+
+  onCancelDelete(): void {
+    this.showDeleteConfirm.set(false);
+    this.tourToDelete.set(null);
   }
 
   getTransportIcon(type: TransportType): string {
