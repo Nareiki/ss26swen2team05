@@ -44,6 +44,7 @@ export class MapDisplayComponent implements AfterViewInit, OnDestroy, OnChanges 
   private toMarker: L.Marker | null = null;
   private routeLayer: L.GeoJSON | null = null;
   private glowLayer: L.GeoJSON | null = null;
+  private dashedLine: L.Polyline | null = null;
 
   private fromIcon = L.divIcon({
     className: 'custom-marker custom-marker--from',
@@ -60,15 +61,16 @@ export class MapDisplayComponent implements AfterViewInit, OnDestroy, OnChanges 
 
   ngOnChanges(changes: SimpleChanges): void {
     if (!this.map) return;
-    if (changes['from'] || changes['to']) this.updateMarkers();
-    if (changes['routeGeoJson']) this.updateRoute();
+    if (changes['from'] || changes['to'] || changes['routeGeoJson']) {
+      this.updateMarkers();
+      this.updateRoute();
+    }
     if (changes['center'] || changes['zoom']) this.map.setView(this.center, this.zoom);
   }
 
   ngOnDestroy(): void { this.map?.remove(); }
 
   private initMap(): void {
-    // Standard OSM tiles — dark mode is handled by CSS filter on img.leaflet-tile
     const tiles = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
       maxZoom: 19,
       attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
@@ -103,6 +105,8 @@ export class MapDisplayComponent implements AfterViewInit, OnDestroy, OnChanges 
     this.mapReady.emit(this.map);
   }
 
+  // ── Markers ──
+
   private updateMarkers(): void {
     if (this.from) this.setFromMarker(this.from);
     if (this.to) this.setToMarker(this.to);
@@ -129,30 +133,50 @@ export class MapDisplayComponent implements AfterViewInit, OnDestroy, OnChanges 
     else if (pts.length === 1) this.map.setView(pts[0], 13);
   }
 
+  // ── Route + Dashed Fallback ──
+
   private updateRoute(): void {
+    // Clear existing layers
     if (this.routeLayer) { this.map.removeLayer(this.routeLayer); this.routeLayer = null; }
     if (this.glowLayer) { this.map.removeLayer(this.glowLayer); this.glowLayer = null; }
-    if (!this.routeGeoJson) return;
+    if (this.dashedLine) { this.map.removeLayer(this.dashedLine); this.dashedLine = null; }
 
-    this.routeLayer = L.geoJSON(this.routeGeoJson, {
-      style: () => ({ color: '#00d4ff', weight: 4, opacity: 0.9 })
-    }).addTo(this.map);
-    this.glowLayer = L.geoJSON(this.routeGeoJson, {
-      style: () => ({ color: '#00d4ff', weight: 14, opacity: 0.2 })
-    }).addTo(this.map);
+    // If we have real route data, draw it
+    if (this.routeGeoJson) {
+      this.routeLayer = L.geoJSON(this.routeGeoJson, {
+        style: () => ({ color: '#00d4ff', weight: 4, opacity: 0.9 })
+      }).addTo(this.map);
+      this.glowLayer = L.geoJSON(this.routeGeoJson, {
+        style: () => ({ color: '#00d4ff', weight: 14, opacity: 0.2 })
+      }).addTo(this.map);
 
-    const bounds = this.routeLayer.getBounds();
-    if (bounds.isValid()) this.map.fitBounds(bounds, { padding: [50, 50] });
+      const bounds = this.routeLayer.getBounds();
+      if (bounds.isValid()) this.map.fitBounds(bounds, { padding: [50, 50] });
+      return;
+    }
+
+    // No route data — draw dashed line between from/to as fallback
+    if (this.from && this.to) {
+      this.dashedLine = L.polyline([this.from, this.to], {
+        color: '#00d4ff',
+        weight: 2,
+        opacity: 0.5,
+        dashArray: '8, 12',
+        dashOffset: '0'
+      }).addTo(this.map);
+    }
   }
+
+  // ── Public API ──
 
   invalidateSize(): void { this.map && setTimeout(() => this.map.invalidateSize(), 0); }
 
   resetSelection(): void {
     this.selectingFrom.set(true);
-    [this.fromMarker, this.toMarker, this.routeLayer, this.glowLayer].forEach(l => {
+    [this.fromMarker, this.toMarker, this.routeLayer, this.glowLayer, this.dashedLine].forEach(l => {
       if (l) this.map.removeLayer(l);
     });
-    this.fromMarker = this.toMarker = this.routeLayer = this.glowLayer = null;
+    this.fromMarker = this.toMarker = this.routeLayer = this.glowLayer = this.dashedLine = null;
   }
 
   getMap(): L.Map { return this.map; }

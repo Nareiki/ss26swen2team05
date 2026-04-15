@@ -1,51 +1,109 @@
 // ============================================================
-//  Map Display — Fixed tile alignment
+//  Map Display — Neo Sci-Fi Final Design
 // ============================================================
 
 :host {
   display: block;
   width: 100%;
+  height: 100%;
 }
 
-::ng-deep .leaflet-tile-pane img.leaflet-tile {
-  filter: brightness(0.6) invert(1) contrast(3) hue-rotate(200deg) saturate(0.3) brightness(0.7);
-}
-
-::ng-deep .leaflet-container {
-  background: #1a1a2e !important;
-}
 .map-wrapper {
   position: relative;
   width: 100%;
+  height: 100%;
   min-height: 300px;
   border-radius: var(--radius-lg);
   overflow: hidden;
-  border: 1px solid var(--border-subtle);
+  border: 1px solid rgba(0, 212, 255, 0.12);
+  box-shadow:
+    0 0 30px rgba(0, 0, 0, 0.4),
+    inset 0 0 30px rgba(0, 0, 0, 0.2);
 }
 
 .map-canvas {
-  // Leaflet NEEDS a concrete pixel height, not just 100%.
-  // "100%" only works if the parent has a fixed height too.
-  // Use absolute positioning to fill the wrapper reliably.
   position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
+  inset: 0;
 }
 
-// ─── CRITICAL FIX: Leaflet needs content-box ───
-// Your global styles.scss sets *, *::before, *::after { box-sizing: border-box }
-// This breaks Leaflet's tile positioning calculations.
+// ─── CRITICAL: Leaflet box-sizing fix ───
 ::ng-deep .leaflet-container,
 ::ng-deep .leaflet-container * {
   box-sizing: content-box !important;
 }
 
-// ─── Corners ───
+// ─── Dark Tile Filter ───
+::ng-deep .leaflet-container {
+  background: #0d1117 !important;
+}
+
+::ng-deep .leaflet-tile-pane img.leaflet-tile {
+  filter:
+    brightness(0.6)
+    invert(1)
+    contrast(3)
+    hue-rotate(200deg)
+    saturate(0.3)
+    brightness(0.7);
+}
+
+// ─── Scanline Overlay ───
+.map-scanline {
+  position: absolute;
+  inset: 0;
+  z-index: 700;
+  pointer-events: none;
+  background: repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 2px,
+      rgba(0, 0, 0, 0.03) 2px,
+      rgba(0, 0, 0, 0.03) 4px
+  );
+}
+
+// ─── Vignette (dark edges) ───
+.map-vignette {
+  position: absolute;
+  inset: 0;
+  z-index: 700;
+  pointer-events: none;
+  background: radial-gradient(
+      ellipse at center,
+      transparent 50%,
+      rgba(5, 8, 15, 0.4) 100%
+  );
+}
+
+// ─── Top/Bottom neon edge lines ───
+.edge-glow {
+  position: absolute;
+  left: 15%;
+  right: 15%;
+  height: 1px;
+  z-index: 800;
+  pointer-events: none;
+
+  &--top {
+    top: 0;
+    background: linear-gradient(90deg, transparent, var(--cyan-400), transparent);
+    opacity: 0.5;
+    box-shadow: 0 0 8px var(--cyan-glow);
+  }
+
+  &--bottom {
+    bottom: 0;
+    background: linear-gradient(90deg, transparent, var(--magenta-400), transparent);
+    opacity: 0.25;
+    box-shadow: 0 0 8px var(--magenta-glow);
+  }
+}
+
+// ─── Corner Brackets ───
 .corner {
   position: absolute;
-  width: 16px; height: 16px;
+  width: 20px;
+  height: 20px;
   z-index: 800;
   pointer-events: none;
 
@@ -53,112 +111,220 @@
     content: '';
     position: absolute;
     background: var(--cyan-400);
-    opacity: 0.4;
+    opacity: 0.5;
   }
 
-  &--tl { top:0;left:0;
-    &::before { width:16px;height:1px; }
-    &::after  { width:1px;height:16px; }
+  &--tl {
+    top: 0; left: 0;
+    &::before { top: 0; left: 0; width: 20px; height: 1px; }
+    &::after  { top: 0; left: 0; width: 1px;  height: 20px; }
   }
-  &--tr { top:0;right:0;
-    &::before { right:0;width:16px;height:1px; }
-    &::after  { right:0;width:1px;height:16px; }
+  &--tr {
+    top: 0; right: 0;
+    &::before { top: 0; right: 0; width: 20px; height: 1px; }
+    &::after  { top: 0; right: 0; width: 1px;  height: 20px; }
   }
-  &--bl { bottom:0;left:0;
-    &::before { bottom:0;width:16px;height:1px; }
-    &::after  { bottom:0;width:1px;height:16px; }
+  &--bl {
+    bottom: 0; left: 0;
+    &::before { bottom: 0; left: 0; width: 20px; height: 1px; }
+    &::after  { bottom: 0; left: 0; width: 1px;  height: 20px; }
   }
-  &--br { bottom:0;right:0;
-    &::before { bottom:0;right:0;width:16px;height:1px; }
-    &::after  { bottom:0;right:0;width:1px;height:16px; }
+  &--br {
+    bottom: 0; right: 0;
+    &::before { bottom: 0; right: 0; width: 20px; height: 1px; }
+    &::after  { bottom: 0; right: 0; width: 1px;  height: 20px; }
   }
 }
 
-// ─── HUD ───
+// ─── HUD (interactive mode) ───
 .map-hud {
-  position: absolute; top: 12px; left: 50%;
-  transform: translateX(-50%); z-index: 800;
-  display: flex; gap: 8px; pointer-events: none;
+  position: absolute;
+  top: 14px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 800;
+  display: flex;
+  gap: 8px;
+  pointer-events: none;
 }
 
 .hud-chip {
-  font-family: var(--font-mono); font-size: 0.7rem;
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
   color: var(--text-muted);
-  background: rgba(5,8,15,0.85); backdrop-filter: blur(8px);
+  background: rgba(5, 8, 15, 0.8);
+  backdrop-filter: blur(10px);
   border: 1px solid var(--border-subtle);
-  border-radius: var(--radius-pill); padding: 4px 12px;
-  display: flex; align-items: center; gap: 6px; white-space: nowrap;
-  transition: all 150ms ease;
+  border-radius: var(--radius-pill);
+  padding: 5px 14px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+  transition: all 200ms ease;
 
   &.active {
-    color: var(--text-primary);
-    border-color: var(--border-accent);
-    box-shadow: 0 0 12px rgba(0,212,255,0.15);
+    color: var(--cyan-300);
+    border-color: rgba(0, 212, 255, 0.3);
+    box-shadow: 0 0 16px rgba(0, 212, 255, 0.12);
+    background: rgba(0, 212, 255, 0.05);
   }
 }
 
 .hud-dot {
-  width: 6px; height: 6px; border-radius: 50%;
-  &--from { background: var(--cyan-400); box-shadow: 0 0 6px var(--cyan-glow); }
-  &--to { background: var(--magenta-400); box-shadow: 0 0 6px var(--magenta-glow); }
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+
+  &--from {
+    background: var(--cyan-400);
+    box-shadow: 0 0 6px var(--cyan-glow);
+  }
+
+  &--to {
+    background: var(--magenta-400);
+    box-shadow: 0 0 6px var(--magenta-glow);
+  }
 }
 
-// ─── Custom Markers & Leaflet Overrides ───
+// ─── Custom Markers ───
 ::ng-deep {
-  .custom-marker { background: none !important; border: none !important; }
+  .custom-marker {
+    background: none !important;
+    border: none !important;
+  }
 
   .custom-marker .marker-dot {
-    width: 14px; height: 14px; border-radius: 50%;
-    position: absolute; top: 50%; left: 50%;
-    transform: translate(-50%,-50%);
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
   }
+
   .custom-marker .marker-pulse {
-    width: 28px; height: 28px; border-radius: 50%;
-    position: absolute; top: 50%; left: 50%;
-    transform: translate(-50%,-50%);
-    animation: mp 2s ease-out infinite;
-  }
-  .custom-marker--from .marker-dot { background: var(--cyan-400); box-shadow: 0 0 10px var(--cyan-glow); }
-  .custom-marker--from .marker-pulse { border: 2px solid var(--cyan-400); }
-  .custom-marker--to .marker-dot { background: var(--magenta-400); box-shadow: 0 0 10px var(--magenta-glow); }
-  .custom-marker--to .marker-pulse { border: 2px solid var(--magenta-400); }
-
-  @keyframes mp {
-    0%   { transform: translate(-50%,-50%) scale(1); opacity: 0.8; }
-    100% { transform: translate(-50%,-50%) scale(2.5); opacity: 0; }
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    animation: markerPulse 2.5s ease-out infinite;
   }
 
-  // ── Controls ──
+  // Start marker (cyan)
+  .custom-marker--from .marker-dot {
+    background: var(--cyan-400);
+    box-shadow:
+      0 0 8px var(--cyan-glow),
+      0 0 20px rgba(0, 212, 255, 0.15);
+  }
+  .custom-marker--from .marker-pulse {
+    border: 2px solid var(--cyan-400);
+  }
+
+  // Destination marker (magenta)
+  .custom-marker--to .marker-dot {
+    background: var(--magenta-400);
+    box-shadow:
+      0 0 8px var(--magenta-glow),
+      0 0 20px rgba(233, 48, 168, 0.15);
+  }
+  .custom-marker--to .marker-pulse {
+    border: 2px solid var(--magenta-400);
+  }
+
+  @keyframes markerPulse {
+    0% {
+      transform: translate(-50%, -50%) scale(1);
+      opacity: 0.7;
+    }
+    100% {
+      transform: translate(-50%, -50%) scale(2.8);
+      opacity: 0;
+    }
+  }
+
+  // ── Zoom Controls ──
   .leaflet-control-zoom {
-    border: 1px solid var(--border-subtle) !important;
+    border: 1px solid rgba(0, 212, 255, 0.15) !important;
     border-radius: var(--radius-md) !important;
     overflow: hidden;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5) !important;
   }
+
   .leaflet-control-zoom a {
-    background: rgba(10,14,26,0.92) !important;
+    background: rgba(10, 14, 26, 0.9) !important;
     color: var(--cyan-400) !important;
-    border-color: var(--border-subtle) !important;
-    width: 30px !important; height: 30px !important;
+    border-color: rgba(255, 255, 255, 0.06) !important;
+    width: 30px !important;
+    height: 30px !important;
     line-height: 30px !important;
-    &:hover { background: rgba(0,212,255,0.1) !important; }
+    font-size: 14px !important;
+    transition: all 150ms ease;
+
+    &:hover {
+      background: rgba(0, 212, 255, 0.08) !important;
+      color: var(--cyan-300) !important;
+      box-shadow: inset 0 0 12px rgba(0, 212, 255, 0.1);
+    }
   }
+
+  // ── Attribution ──
   .leaflet-control-attribution {
-    background: rgba(5,8,15,0.7) !important;
+    background: rgba(5, 8, 15, 0.75) !important;
+    backdrop-filter: blur(4px);
     color: var(--text-muted) !important;
     font-family: var(--font-mono) !important;
     font-size: 9px !important;
-    a { color: rgba(0,144,170,1) !important; }
+    padding: 2px 8px !important;
+    border-top: 1px solid rgba(0, 212, 255, 0.08) !important;
+    border-left: 1px solid rgba(0, 212, 255, 0.08) !important;
+    border-radius: var(--radius-md) 0 0 0 !important;
+
+    a {
+      color: var(--cyan-600) !important;
+      &:hover { color: var(--cyan-400) !important; }
+    }
   }
 
   // ── Popups ──
   .leaflet-popup-content-wrapper {
-    background: rgba(15,21,40,0.95) !important;
+    background: rgba(10, 14, 26, 0.92) !important;
+    backdrop-filter: blur(12px);
     color: var(--text-primary) !important;
-    border: 1px solid var(--border-accent) !important;
+    border: 1px solid rgba(0, 212, 255, 0.2) !important;
     border-radius: var(--radius-md) !important;
-    box-shadow: 0 0 20px rgba(0,212,255,0.15) !important;
+    box-shadow:
+      0 0 20px rgba(0, 212, 255, 0.1),
+      0 8px 32px rgba(0, 0, 0, 0.5) !important;
     font-family: var(--font-mono) !important;
-    font-size: 0.85rem !important;
+    font-size: 0.8rem !important;
+    padding: 0 !important;
   }
-  .leaflet-popup-tip { background: rgba(15,21,40,0.95) !important; }
+
+  .leaflet-popup-content {
+    margin: 10px 14px !important;
+  }
+
+  .leaflet-popup-tip {
+    background: rgba(10, 14, 26, 0.92) !important;
+    border: 1px solid rgba(0, 212, 255, 0.15) !important;
+    border-top: none !important;
+    border-left: none !important;
+    box-shadow: none !important;
+  }
+
+  .leaflet-popup-close-button {
+    color: var(--text-muted) !important;
+    font-size: 18px !important;
+    padding: 4px 8px 0 0 !important;
+
+    &:hover {
+      color: var(--cyan-400) !important;
+    }
+  }
 }

@@ -1,0 +1,255 @@
+// ============================================================
+//  Tour Dashboard — IDE-style layout
+//  [ sidebar (tour-list) | map (center) | detail (right) ]
+// ============================================================
+
+:host {
+  display: block;
+  height: 100vh;
+  overflow: hidden;
+}
+
+.dashboard {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background: var(--bg-base);
+}
+
+// ─── Top Bar ───
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 16px;
+  height: 48px;
+  flex-shrink: 0;
+  border-bottom: 1px solid var(--border-subtle);
+  background: var(--bg-surface);
+}
+
+.topbar-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.logo-icon {
+  width: 24px;
+  height: 24px;
+  flex-shrink: 0;
+}
+
+.logo-text {
+  font-family: var(--font-display);
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--cyan-400);
+}
+
+.topbar-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.topbar-btn {
+  font-family: var(--font-display);
+  font-size: 0.6rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 5px 12px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-subtle);
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: all 150ms ease;
+
+  &:hover {
+    color: var(--text-primary);
+    border-color: var(--border-default);
+    background: rgba(255, 255, 255, 0.03);
+  }
+}
+
+// ─── Workspace (3-column) ───
+.workspace {
+  display: flex;
+  flex: 1;
+  min-height: 0;
+  gap: 1px;
+  background: var(--border-subtle);
+  // Force all children to stretch full height
+  align-items: stretch;
+}
+
+// ─── Sidebar (Tour List) ───
+.sidebar {
+  width: 280px;
+  min-width: 220px;
+  flex-shrink: 0;
+  background: var(--bg-base);
+  padding: 8px;
+}
+
+// ─── Map Panel (Center) ───
+.panel-map {
+  flex: 1;
+  min-width: 0;
+  background: var(--bg-base);
+  padding: 8px;
+  position: relative;
+
+  // Make app-map-display fill the panel
+  app-map-display,
+  ::ng-deep app-map-display {
+    display: block;
+    height: 100%;
+  }
+}
+
+// ─── Detail Panel (Right) ───
+.panel-detail {
+  width: 300px;
+  min-width: 240px;
+  flex-shrink: 0;
+  background: var(--bg-base);
+  padding: 8px;
+  overflow-y: auto;
+}
+
+// ─── Detail Placeholder (until tour-detail component is built) ───
+.detail-placeholder {
+  height: 100%;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  overflow-y: auto;
+
+  &--empty {
+    align-items: center;
+    justify-content: center;
+
+    p {
+      font-family: var(--font-mono);
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      margin: 0;
+    }
+  }
+}
+
+.detail-title {
+  font-family: var(--font-display);
+  font-size: 0.85rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.detail-desc {
+  font-family: var(--font-body);
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  margin: 0;
+  line-height: 1.4;
+}
+
+.detail-stats {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px 0;
+  border-top: 1px solid var(--border-subtle);
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.detail-stat {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.detail-stat-label {
+  font-family: var(--font-display);
+  font-size: 0.55rem;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.detail-stat-value {
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  color: var(--cyan-300);
+}
+
+.detail-section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  span {
+    font-family: var(--font-display);
+    font-size: 0.65rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text-secondary);
+  }
+}
+
+.btn-sm {
+  font-family: var(--font-display);
+  font-size: 0.55rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 4px 10px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-accent);
+  background: transparent;
+  color: var(--cyan-400);
+  cursor: pointer;
+  transition: all 150ms ease;
+
+  &:hover {
+    background: rgba(0, 212, 255, 0.08);
+  }
+}
+
+.detail-empty {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  margin: 0;
+}
+
+// ─── Responsive ───
+@media (max-width: 900px) {
+  .workspace {
+    flex-direction: column;
+  }
+
+  .sidebar,
+  .panel-detail {
+    width: 100%;
+    height: 250px;
+  }
+
+  .panel-map {
+    height: 300px;
+    flex: none;
+  }
+}

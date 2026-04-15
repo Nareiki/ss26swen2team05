@@ -1,9 +1,89 @@
-import { Component } from '@angular/core';
+import {
+  Component, Input, Output, EventEmitter,
+  signal, computed, ChangeDetectionStrategy
+} from '@angular/core';
+import { FormsModule } from '@angular/forms';
+import { Tour, TransportType } from '../../models/tour';
 
 @Component({
   selector: 'app-tour-list',
-  imports: [],
+  standalone: true,
+  imports: [FormsModule],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './tour-list.html',
-  styleUrl: './tour-list.scss',
+  styleUrls: ['./tour-list.scss']
 })
-export class TourList {}
+export class TourListComponent {
+
+  @Input() set tours(value: Tour[]) {
+    this.allTours.set(value);
+  }
+
+  @Output() tourSelected = new EventEmitter<Tour>();
+  @Output() tourCreate = new EventEmitter<void>();
+  @Output() tourEdit = new EventEmitter<Tour>();
+  @Output() tourDelete = new EventEmitter<Tour>();
+
+  allTours = signal<Tour[]>([]);
+  searchQuery = signal('');
+  selectedTourId = signal<number | null>(null);
+
+  filteredTours = computed(() => {
+    const q = this.searchQuery().toLowerCase().trim();
+    const tours = this.allTours();
+    if (!q) return tours;
+
+    return tours.filter(t =>
+      t.name.toLowerCase().includes(q) ||
+      t.description.toLowerCase().includes(q) ||
+      t.from.toLowerCase().includes(q) ||
+      t.to.toLowerCase().includes(q) ||
+      t.transportType.toLowerCase().includes(q) ||
+      // Search computed values as per requirements
+      `popularity ${t.popularity}`.includes(q) ||
+      `child-friendly ${t.childFriendliness}`.includes(q)
+    );
+  });
+
+  onSearch(event: Event): void {
+    const value = (event.target as HTMLInputElement).value;
+    this.searchQuery.set(value);
+  }
+
+  onSelect(tour: Tour): void {
+    this.selectedTourId.set(tour.id);
+    this.tourSelected.emit(tour);
+  }
+
+  onCreate(): void {
+    this.tourCreate.emit();
+  }
+
+  onEdit(event: Event, tour: Tour): void {
+    event.stopPropagation();
+    this.tourEdit.emit(tour);
+  }
+
+  onDelete(event: Event, tour: Tour): void {
+    event.stopPropagation();
+    this.tourDelete.emit(tour);
+  }
+
+  getTransportIcon(type: TransportType): string {
+    switch (type) {
+      case TransportType.BIKE: return '🚴';
+      case TransportType.HIKE: return '🥾';
+      case TransportType.RUNNING: return '🏃';
+      case TransportType.VACATION: return '✈️';
+      default: return '📍';
+    }
+  }
+
+  formatTime(minutes: number): string {
+    const h = Math.floor(minutes / 60);
+    const m = minutes % 60;
+    if (h === 0) return `${m}min`;
+    if (m === 0) return `${h}h`;
+    return `${h}h ${m}m`;
+  }
+}

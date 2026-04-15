@@ -1,0 +1,96 @@
+<div class="dashboard">
+
+  <!-- Top Bar -->
+  <header class="topbar">
+    <div class="topbar-left">
+      <svg class="logo-icon" viewBox="0 0 40 40" fill="none">
+        <path d="M20 4L36 12V28L20 36L4 28V12L20 4Z" stroke="var(--cyan-400)" stroke-width="1.5"/>
+        <circle cx="20" cy="20" r="4" fill="var(--cyan-400)" opacity="0.8"/>
+      </svg>
+      <span class="logo-text">Tour Planner</span>
+    </div>
+    <div class="topbar-right">
+      <button class="topbar-btn" (click)="onLogout()">Logout</button>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <div class="workspace">
+
+    <!-- Left Sidebar: Tour List -->
+    <aside class="sidebar">
+      <app-tour-list
+        [tours]="tours()"
+        (tourSelected)="onTourSelected($event)"
+        (tourCreate)="onTourCreate()"
+        (tourEdit)="onTourEdit($event)"
+        (tourDelete)="onTourDelete($event)">
+      </app-tour-list>
+    </aside>
+
+    <!-- Center: Map -->
+    <section class="panel-map">
+      @if (selectedTour(); as tour) {
+        <app-map-display
+          [from]="tour.fromCoords"
+          [to]="tour.toCoords"
+          [routeGeoJson]="tour.routeGeoJson"
+          height="100%">
+        </app-map-display>
+      } @else {
+        <app-map-display height="100%"></app-map-display>
+      }
+    </section>
+
+    <!-- Right: Detail / Form (placeholder for now) -->
+    <aside class="panel-detail">
+      @if (selectedTour(); as tour) {
+        <div class="detail-placeholder">
+          <h3 class="detail-title">{{ tour.name }}</h3>
+          <p class="detail-desc">{{ tour.description }}</p>
+          <div class="detail-stats">
+            <div class="detail-stat">
+              <span class="detail-stat-label">From</span>
+              <span class="detail-stat-value">{{ tour.from }}</span>
+            </div>
+            <div class="detail-stat">
+              <span class="detail-stat-label">To</span>
+              <span class="detail-stat-value">{{ tour.to }}</span>
+            </div>
+            <div class="detail-stat">
+              <span class="detail-stat-label">Distance</span>
+              <span class="detail-stat-value">{{ tour.distance }} km</span>
+            </div>
+            <div class="detail-stat">
+              <span class="detail-stat-label">Est. Time</span>
+              <span class="detail-stat-value">{{ tour.estimatedTime }} min</span>
+            </div>
+            <div class="detail-stat">
+              <span class="detail-stat-label">Type</span>
+              <span class="detail-stat-value">{{ tour.transportType }}</span>
+            </div>
+            <div class="detail-stat">
+              <span class="detail-stat-label">Popularity</span>
+              <span class="detail-stat-value">{{ tour.popularity }}</span>
+            </div>
+            <div class="detail-stat">
+              <span class="detail-stat-label">Child-Friendly</span>
+              <span class="detail-stat-value">{{ tour.childFriendliness }} / 5</span>
+            </div>
+          </div>
+          <div class="detail-section-header">
+            <span>Tour Logs</span>
+            <button class="btn-sm">+ Add Log</button>
+          </div>
+          <p class="detail-empty">No logs yet — tour-log-list goes here</p>
+        </div>
+      } @else {
+        <div class="detail-placeholder detail-placeholder--empty">
+          <p>Select a tour to view details</p>
+        </div>
+      }
+    </aside>
+
+  </div>
+
+</div>
