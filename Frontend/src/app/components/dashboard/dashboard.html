@@ -17,7 +17,7 @@
   <!-- Main Content -->
   <div class="workspace">
 
-    <!-- Left Sidebar: Tour List -->
+    <!-- Left: Tour List -->
     <aside class="sidebar">
       <app-tour-list
         [tours]="tours()"
@@ -42,53 +42,18 @@
       }
     </section>
 
-    <!-- Right: Detail / Form (placeholder for now) -->
+    <!-- Right: Tour Detail -->
     <aside class="panel-detail">
-      @if (selectedTour(); as tour) {
-        <div class="detail-placeholder">
-          <h3 class="detail-title">{{ tour.name }}</h3>
-          <p class="detail-desc">{{ tour.description }}</p>
-          <div class="detail-stats">
-            <div class="detail-stat">
-              <span class="detail-stat-label">From</span>
-              <span class="detail-stat-value">{{ tour.from }}</span>
-            </div>
-            <div class="detail-stat">
-              <span class="detail-stat-label">To</span>
-              <span class="detail-stat-value">{{ tour.to }}</span>
-            </div>
-            <div class="detail-stat">
-              <span class="detail-stat-label">Distance</span>
-              <span class="detail-stat-value">{{ tour.distance }} km</span>
-            </div>
-            <div class="detail-stat">
-              <span class="detail-stat-label">Est. Time</span>
-              <span class="detail-stat-value">{{ tour.estimatedTime }} min</span>
-            </div>
-            <div class="detail-stat">
-              <span class="detail-stat-label">Type</span>
-              <span class="detail-stat-value">{{ tour.transportType }}</span>
-            </div>
-            <div class="detail-stat">
-              <span class="detail-stat-label">Popularity</span>
-              <span class="detail-stat-value">{{ tour.popularity }}</span>
-            </div>
-            <div class="detail-stat">
-              <span class="detail-stat-label">Child-Friendly</span>
-              <span class="detail-stat-value">{{ tour.childFriendliness }} / 5</span>
-            </div>
-          </div>
-          <div class="detail-section-header">
-            <span>Tour Logs</span>
-            <button class="btn-sm">+ Add Log</button>
-          </div>
-          <p class="detail-empty">No logs yet — tour-log-list goes here</p>
-        </div>
-      } @else {
-        <div class="detail-placeholder detail-placeholder--empty">
-          <p>Select a tour to view details</p>
-        </div>
-      }
+      <app-tour-detail
+        [tour]="selectedTour()"
+        [logs]="selectedTourLogs()"
+        (editTour)="onTourEdit($event)"
+        (deleteTour)="onTourDelete($event)"
+        (exportTour)="onExportTour($event)"
+        (addLog)="onAddLog($event)"
+        (editLog)="onEditLog($event)"
+        (deleteLog)="onDeleteLog($event)">
+      </app-tour-detail>
     </aside>
 
   </div>

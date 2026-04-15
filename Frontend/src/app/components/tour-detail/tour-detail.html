@@ -1,1 +1,150 @@
-<p>tour-detail works!</p>
+<div class="detail-panel">
+
+  @if (_tour(); as tour) {
+
+    <!-- Header -->
+    <div class="detail-header">
+      <div class="detail-header-top">
+        <h3 class="detail-title">{{ tour.name }}</h3>
+        <div class="detail-actions">
+          <button class="icon-btn" (click)="onExport()" title="Export">
+            <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd"/></svg>
+          </button>
+          <button class="icon-btn" (click)="onEdit()" title="Edit">
+            <svg viewBox="0 0 20 20" fill="currentColor"><path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z"/></svg>
+          </button>
+          <button class="icon-btn icon-btn--danger" (click)="onDelete()" title="Delete">
+            <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd"/></svg>
+          </button>
+        </div>
+      </div>
+      <span class="detail-badge">{{ getTransportLabel(tour.transportType) }}</span>
+    </div>
+
+    <!-- Tabs -->
+    <div class="tab-bar">
+      <button class="tab" [class.active]="activeTab() === 'info'" (click)="activeTab.set('info')">Info</button>
+      <button class="tab" [class.active]="activeTab() === 'logs'" (click)="activeTab.set('logs')">
+        Logs
+        @if (totalLogs() > 0) {
+          <span class="tab-count">{{ totalLogs() }}</span>
+        }
+      </button>
+    </div>
+
+    <!-- Info Tab -->
+    @if (activeTab() === 'info') {
+      <div class="tab-content">
+
+        @if (tour.description) {
+          <p class="description">{{ tour.description }}</p>
+        }
+
+        <div class="stats-grid">
+          <div class="stat-card">
+            <span class="stat-label">From</span>
+            <span class="stat-value">{{ tour.from }}</span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-label">To</span>
+            <span class="stat-value">{{ tour.to }}</span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-label">Distance</span>
+            <span class="stat-value stat-value--highlight">{{ tour.distance }} km</span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-label">Est. Time</span>
+            <span class="stat-value stat-value--highlight">{{ formatTime(tour.estimatedTime) }}</span>
+          </div>
+        </div>
+
+        <div class="divider"></div>
+
+        <div class="computed-stats">
+          <div class="computed-stat">
+            <span class="computed-label">Popularity</span>
+            <div class="computed-bar-wrap">
+              <div class="computed-bar" [style.width.%]="(tour.popularity / 10) * 100"></div>
+            </div>
+            <span class="computed-value">{{ tour.popularity }}</span>
+          </div>
+          <div class="computed-stat">
+            <span class="computed-label">Child-Friendly</span>
+            <div class="computed-bar-wrap">
+              <div class="computed-bar computed-bar--magenta" [style.width.%]="(tour.childFriendliness / 5) * 100"></div>
+            </div>
+            <span class="computed-value">{{ tour.childFriendliness }}/5</span>
+          </div>
+
+          @if (totalLogs() > 0) {
+            <div class="computed-stat">
+              <span class="computed-label">Avg. Rating</span>
+              <div class="computed-bar-wrap">
+                <div class="computed-bar computed-bar--gold" [style.width.%]="(avgRating() / 5) * 100"></div>
+              </div>
+              <span class="computed-value">{{ avgRating() }}</span>
+            </div>
+            <div class="computed-stat">
+              <span class="computed-label">Avg. Difficulty</span>
+              <span class="computed-value">{{ avgDifficulty() }}</span>
+            </div>
+          }
+        </div>
+
+      </div>
+    }
+
+    <!-- Logs Tab -->
+    @if (activeTab() === 'logs') {
+      <div class="tab-content">
+
+        <div class="logs-header">
+          <span class="logs-count">{{ totalLogs() }} log{{ totalLogs() !== 1 ? 's' : '' }}</span>
+          <button class="btn-add-log" (click)="onAddLog()">+ Add Log</button>
+        </div>
+
+        <div class="logs-list">
+          @for (log of _logs(); track log.id) {
+            <div class="log-card" (click)="onEditLog(log)">
+              <div class="log-top">
+                <span class="log-date">{{ formatDate(log.dateTime) }}</span>
+                <span class="log-rating">{{ getStars(log.rating) }}</span>
+                <button class="icon-btn icon-btn--sm icon-btn--danger" (click)="onDeleteLog($event, log)" title="Delete log">
+                  <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"/></svg>
+                </button>
+              </div>
+              <div class="log-stats">
+                <span class="log-stat">{{ log.totalDistance }} km</span>
+                <span class="log-stat">{{ formatTime(log.totalTime) }}</span>
+                <span class="log-stat log-stat--diff">{{ log.difficulty }}</span>
+              </div>
+              @if (log.comment) {
+                <p class="log-comment">{{ log.comment }}</p>
+              }
+            </div>
+          } @empty {
+            <div class="empty-logs">
+              <p>No logs recorded yet</p>
+              <button class="btn-add-log" (click)="onAddLog()">Record your first log</button>
+            </div>
+          }
+        </div>
+
+      </div>
+    }
+
+  } @else {
+
+    <!-- No tour selected -->
+    <div class="empty-detail">
+      <svg class="empty-icon" viewBox="0 0 40 40" fill="none">
+        <path d="M20 4L36 12V28L20 36L4 28V12L20 4Z" stroke="currentColor" stroke-width="1" opacity="0.3"/>
+        <circle cx="20" cy="20" r="3" fill="currentColor" opacity="0.2"/>
+      </svg>
+      <p>Select a tour to view details</p>
+    </div>
+
+  }
+
+</div>
