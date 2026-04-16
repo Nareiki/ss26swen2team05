@@ -1,0 +1,272 @@
+// ============================================================
+//  Tour Dashboard — Cartographer's Desk
+//  Layout: topbar → workspace(list+map) → bottom-panel
+//  Bottom panel is IN-FLOW: it pushes the map up, not overlay.
+//  Map stays visible and clickable at all times.
+// ============================================================
+
+:host {
+  display: block;
+  height: 100vh;
+  overflow: hidden;
+}
+
+.dashboard {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background: var(--surface-base);
+}
+
+// ─── Top Bar ───
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 20px;
+  height: 54px;
+  flex-shrink: 0;
+  background: linear-gradient(180deg, var(--surface-raised), var(--surface-base));
+  border-bottom: 1px solid var(--edge);
+  position: relative;
+
+  &::after {
+    content: '';
+    position: absolute;
+    bottom: -1px;
+    left: 10%;
+    right: 10%;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--brass) 30%, var(--brass-bright) 50%, var(--brass) 70%, transparent);
+    opacity: 0.5;
+  }
+}
+
+.topbar-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.logo-icon {
+  width: 30px;
+  height: 30px;
+  flex-shrink: 0;
+  filter: drop-shadow(0 0 4px var(--brass-glow));
+}
+
+.logo-text {
+  font-family: var(--font-display);
+  font-size: 1.05rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--brass);
+}
+
+.topbar-right {
+  display: flex;
+  align-items: center;
+}
+
+.topbar-btn {
+  font-family: var(--font-display);
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  padding: 7px 16px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--edge);
+  background: transparent;
+  color: var(--ink-faded);
+  cursor: pointer;
+  transition: all var(--ease-fast);
+
+  &:hover {
+    color: var(--brass);
+    border-color: var(--edge-strong);
+    background: rgba(212, 169, 74, 0.05);
+  }
+}
+
+// ─── Workspace: list + map ───
+// flex: 1 means it takes all available space.
+// When bottom-panel appears, workspace shrinks.
+.workspace {
+  display: flex;
+  flex: 1;
+  min-height: 200px;  // never collapse completely
+  gap: 1px;
+  background: var(--edge-faint);
+  align-items: stretch;
+  transition: flex 300ms ease;
+}
+
+.sidebar {
+  width: 380px;
+  min-width: 280px;
+  flex-shrink: 0;
+  background: var(--surface-base);
+  padding: 10px;
+}
+
+.panel-map {
+  flex: 1;
+  min-width: 0;
+  background: var(--surface-base);
+  padding: 10px;
+  position: relative;
+  z-index: 1;
+  isolation: isolate;
+
+  app-map-display,
+  ::ng-deep app-map-display {
+    display: block;
+    height: 100%;
+  }
+}
+
+// ─── Bottom Panel (in-flow, NOT fixed/overlay) ───
+.bottom-panel {
+  flex-shrink: 0;
+  height: 480px;
+  max-height: 60vh;
+  background: var(--surface-raised);
+  border-top: 1px solid var(--edge-strong);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  animation: panelGrow 250ms ease;
+  position: relative;
+
+  // Brass trim on top
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 15%;
+    right: 15%;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--brass), transparent);
+    opacity: 0.6;
+  }
+}
+
+// Top bar of the panel with close button
+.bottom-panel-bar {
+  display: flex;
+  justify-content: flex-end;
+  padding: 6px 14px;
+  flex-shrink: 0;
+  border-bottom: 1px solid var(--edge-faint);
+}
+
+.bottom-close {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-family: var(--font-display);
+  font-size: 0.6rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink-faded);
+  background: transparent;
+  border: 1px solid var(--edge);
+  border-radius: var(--radius-sm);
+  padding: 4px 10px;
+  cursor: pointer;
+  transition: all var(--ease-fast);
+
+  svg { width: 14px; height: 14px; }
+
+  &:hover {
+    color: var(--brass);
+    border-color: var(--edge-strong);
+  }
+}
+
+.bottom-content {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+
+  > * {
+    display: block;
+    height: 100%;
+  }
+}
+
+@keyframes panelGrow {
+  from { height: 0; opacity: 0; }
+  to   { height: 480px; opacity: 1; }
+}
+
+// ─── Responsive: Tablet ───
+@media (max-width: 1024px) {
+  .sidebar {
+    width: 320px;
+    min-width: 240px;
+  }
+
+  .bottom-panel {
+    height: 440px;
+  }
+}
+
+// ─── Responsive: Mobile ───
+@media (max-width: 768px) {
+  :host {
+    height: 100vh;
+    overflow: hidden;
+  }
+
+  .dashboard {
+    height: 100%;
+    overflow-y: auto;
+    overflow-x: hidden;
+  }
+
+  .workspace {
+    flex-direction: column;
+    min-height: 0;
+    flex-shrink: 1;
+  }
+
+  .sidebar {
+    width: 100%;
+    flex: 1;
+    min-height: 100px;
+  }
+
+  // On mobile, map hides when bottom panel is open
+  // The panel pushes it out naturally via flex
+  .panel-map {
+    flex: 1;
+    min-height: 0;          // can fully collapse
+    overflow: hidden;
+  }
+
+  .bottom-panel {
+    height: auto;
+    min-height: 250px;
+    max-height: none;
+    flex-shrink: 0;
+    overflow-y: auto;
+  }
+
+  .topbar {
+    padding: 0 12px;
+    height: 44px;
+    flex-shrink: 0;
+  }
+
+  .logo-text { font-size: 0.85rem; }
+}
+
+@media (max-width: 480px) {
+  .sidebar {
+    min-height: 80px;
+  }
+}

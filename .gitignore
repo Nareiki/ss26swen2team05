@@ -66,6 +66,10 @@ node_modules/
 /coverage
 /frontend/coverage/
 
+# Angular environments
+/Frontend/src/environments/environment.ts
+/Frontend/src/environments/
+
 # Build output
 dist/
 /frontend/dist/
@@ -89,3 +93,4 @@ yarn-error.log*
 *.db
 *.sqlite
 *.log
+

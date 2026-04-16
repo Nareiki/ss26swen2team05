@@ -1,0 +1,146 @@
+// ============================================================
+//  Popup — Cartographer's Atlas Theme
+//  A folded parchment note, sealed with brass or ruby wax.
+// ============================================================
+
+.popup-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  background: rgba(13, 8, 5, 0.7);
+  backdrop-filter: blur(3px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: popupFadeIn 180ms ease;
+}
+
+.popup {
+  background: var(--surface-elevated);
+  border: 1px solid var(--edge-strong);
+  border-radius: var(--radius-md);
+  padding: 24px;
+  max-width: 380px;
+  width: 90%;
+  box-shadow:
+    0 0 40px rgba(0, 0, 0, 0.6),
+    0 0 24px rgba(212, 169, 74, 0.06),
+    inset 0 1px 0 rgba(240, 228, 204, 0.05);
+  animation: popupIn 220ms cubic-bezier(0.34, 1.56, 0.64, 1);
+  position: relative;
+
+  // Gilded top-edge trim
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 15%;
+    right: 15%;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--brass) 30%, var(--brass-bright) 50%, var(--brass) 70%, transparent);
+    opacity: 0.7;
+  }
+
+  h2 {
+    font-family: var(--font-display);
+    font-size: 1rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--brass-bright);
+    margin: 0 0 10px;
+  }
+
+  p {
+    font-family: var(--font-script);
+    font-style: italic;
+    font-size: 0.95rem;
+    color: var(--ink);
+    line-height: 1.55;
+    margin: 0 0 22px;
+  }
+
+  // ─── Danger variant (wax seal broken) ───
+  &.popup--danger {
+    border-color: rgba(224, 82, 82, 0.4);
+
+    &::before {
+      background: linear-gradient(90deg, transparent, var(--ruby) 30%, var(--ruby-bright) 50%, var(--ruby) 70%, transparent);
+      opacity: 0.75;
+    }
+
+    h2 {
+      color: var(--ruby-bright);
+    }
+  }
+}
+
+.popup-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+}
+
+.popup-btn {
+  font-family: var(--font-display);
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  padding: 9px 20px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition: all var(--ease-fast);
+
+  &:active { transform: translateY(1px); }
+
+  &--cancel {
+    background: transparent;
+    border-color: var(--edge);
+    color: var(--ink-faded);
+
+    &:hover {
+      border-color: var(--edge-strong);
+      color: var(--ink-bright);
+      background: rgba(240, 228, 204, 0.04);
+    }
+  }
+
+  &--primary {
+    background: linear-gradient(180deg, var(--brass), var(--brass-dark));
+    border-color: var(--brass-dark);
+    color: var(--ink-on-brass);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.15),
+      0 1px 2px rgba(0, 0, 0, 0.3);
+
+    &:hover {
+      background: linear-gradient(180deg, var(--brass-bright), var(--brass));
+      box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.2),
+        0 2px 10px var(--brass-glow);
+    }
+  }
+
+  &--confirm {
+    background: rgba(224, 82, 82, 0.12);
+    border-color: var(--ruby);
+    color: var(--ruby-bright);
+
+    &:hover {
+      background: rgba(224, 82, 82, 0.22);
+      box-shadow: 0 0 14px var(--ruby-glow);
+    }
+  }
+}
+
+@keyframes popupFadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes popupIn {
+  from { opacity: 0; transform: scale(0.92) translateY(10px); }
+  to   { opacity: 1; transform: scale(1) translateY(0); }
+}
