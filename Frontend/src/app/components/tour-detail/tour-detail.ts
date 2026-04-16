@@ -4,10 +4,12 @@ import {
 } from '@angular/core';
 import { Tour, TransportType } from '../../models/tour';
 import { TourLog } from '../../models/tour_log';
+import { PopupComponent } from '../shared/popup/popup';
 
 @Component({
   selector: 'app-tour-detail',
   standalone: true,
+  imports: [PopupComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './tour-detail.html',
   styleUrls: ['./tour-detail.scss']
@@ -32,10 +34,11 @@ export class TourDetailComponent {
   _tour = signal<Tour | null>(null);
   _logs = signal<TourLog[]>([]);
 
-  // Tab state
   activeTab = signal<'info' | 'logs'>('info');
 
-  // Computed stats from logs
+  showDeleteLogConfirm = signal(false);
+  logToDelete = signal<TourLog | null>(null);
+
   avgRating = computed(() => {
     const logs = this._logs();
     if (logs.length === 0) return 0;
@@ -53,6 +56,12 @@ export class TourDetailComponent {
     if (avg <= 2.5) return 'Medium';
     if (avg <= 3.5) return 'Hard';
     return 'Expert';
+  });
+
+  deleteLogMessage = computed(() => {
+    const log = this.logToDelete();
+    if (!log) return '';
+    return `Are you sure you want to delete this log from ${this.formatDate(log.dateTime)}?`;
   });
 
   getTransportLabel(type: TransportType): string {
@@ -106,8 +115,21 @@ export class TourDetailComponent {
     this.editLog.emit(log);
   }
 
-  onDeleteLog(event: Event, log: TourLog): void {
+  onDeleteLogClick(event: Event, log: TourLog): void {
     event.stopPropagation();
-    this.deleteLog.emit(log);
+    this.logToDelete.set(log);
+    this.showDeleteLogConfirm.set(true);
+  }
+
+  onConfirmDeleteLog(): void {
+    const log = this.logToDelete();
+    if (log) this.deleteLog.emit(log);
+    this.showDeleteLogConfirm.set(false);
+    this.logToDelete.set(null);
+  }
+
+  onCancelDeleteLog(): void {
+    this.showDeleteLogConfirm.set(false);
+    this.logToDelete.set(null);
   }
 }

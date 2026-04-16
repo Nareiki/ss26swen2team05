@@ -1,7 +1,18 @@
-<div class="popup-overlay">
-  <div class="popup">
+<div class="popup-overlay" (click)="onOverlayClick()">
+  <div class="popup" [class.popup--danger]="variant === 'danger'" (click)="$event.stopPropagation()">
     <h2>{{ title }}</h2>
     <p>{{ message }}</p>
-    <button (click)="onConfirm()">{{ confirmText }}</button>
+    <div class="popup-actions">
+      @if (cancelText) {
+        <button class="popup-btn popup-btn--cancel" (click)="onCancel()">{{ cancelText }}</button>
+      }
+      <button
+        class="popup-btn"
+        [class.popup-btn--confirm]="variant === 'danger'"
+        [class.popup-btn--primary]="variant === 'default'"
+        (click)="onConfirm()">
+        {{ confirmText }}
+      </button>
+    </div>
   </div>
 </div>

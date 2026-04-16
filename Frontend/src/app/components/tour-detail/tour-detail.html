@@ -2,7 +2,6 @@
 
   @if (_tour(); as tour) {
 
-    <!-- Header -->
     <div class="detail-header">
       <div class="detail-header-top">
         <h3 class="detail-title">{{ tour.name }}</h3>
@@ -21,7 +20,6 @@
       <span class="detail-badge">{{ getTransportLabel(tour.transportType) }}</span>
     </div>
 
-    <!-- Tabs -->
     <div class="tab-bar">
       <button class="tab" [class.active]="activeTab() === 'info'" (click)="activeTab.set('info')">Info</button>
       <button class="tab" [class.active]="activeTab() === 'logs'" (click)="activeTab.set('logs')">
@@ -32,7 +30,6 @@
       </button>
     </div>
 
-    <!-- Info Tab -->
     @if (activeTab() === 'info') {
       <div class="tab-content">
 
@@ -95,7 +92,6 @@
       </div>
     }
 
-    <!-- Logs Tab -->
     @if (activeTab() === 'logs') {
       <div class="tab-content">
 
@@ -110,7 +106,7 @@
               <div class="log-top">
                 <span class="log-date">{{ formatDate(log.dateTime) }}</span>
                 <span class="log-rating">{{ getStars(log.rating) }}</span>
-                <button class="icon-btn icon-btn--sm icon-btn--danger" (click)="onDeleteLog($event, log)" title="Delete log">
+                <button class="icon-btn icon-btn--sm icon-btn--danger" (click)="onDeleteLogClick($event, log)" title="Delete log">
                   <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"/></svg>
                 </button>
               </div>
@@ -136,7 +132,6 @@
 
   } @else {
 
-    <!-- No tour selected -->
     <div class="empty-detail">
       <svg class="empty-icon" viewBox="0 0 40 40" fill="none">
         <path d="M20 4L36 12V28L20 36L4 28V12L20 4Z" stroke="currentColor" stroke-width="1" opacity="0.3"/>
@@ -145,6 +140,19 @@
       <p>Select a tour to view details</p>
     </div>
 
+  }
+
+  <!-- Reusable popup for log delete -->
+  @if (showDeleteLogConfirm()) {
+    <app-popup
+      title="Delete Log"
+      [message]="deleteLogMessage()"
+      confirmText="Delete"
+      cancelText="Cancel"
+      variant="danger"
+      (confirmed)="onConfirmDeleteLog()"
+      (cancelled)="onCancelDeleteLog()">
+    </app-popup>
   }
 
 </div>

@@ -1,32 +1,39 @@
-import { Component, signal, computed, ChangeDetectionStrategy, ViewChild } from '@angular/core';
+import { Component, signal, computed, ViewChild, ChangeDetectionStrategy } from '@angular/core';
 import { TourListComponent } from '../tour-list/tour-list';
 import { TourDetailComponent } from '../tour-detail/tour-detail';
+import { TourFormComponent } from '../tour-form/tour-form';
+import { TourLogFormComponent } from '../tour-log-form/tour-log-form';
 import { MapDisplayComponent } from '../shared/map-display/map-display';
 import { Tour } from '../../models/tour';
 import { TourLog } from '../../models/tour_log';
-import { MOCK_TOURS } from '../../mock_data/mock_tours';
-import { MOCK_TOUR_LOGS } from '../../mock_data/mock_tour_logs';
-import { AuthService } from '../../services/auth';
 import { TourService } from '../../services/tour';
-import { TourFormComponent } from '../tour-form/tour-form';
+import { AuthService } from '../../services/auth';
+
+type RightPanel = 'detail' | 'tour-form' | 'log-form';
 
 @Component({
   selector: 'app-tour-dashboard',
   standalone: true,
-  imports: [TourListComponent, TourDetailComponent, MapDisplayComponent, TourFormComponent],
+  imports: [TourListComponent, TourDetailComponent, TourFormComponent, TourLogFormComponent, MapDisplayComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './dashboard.html',
-  styleUrls: ['./dashboard.scss'],
+  styleUrls: ['./dashboard.scss']
 })
 export class DashboardComponent {
 
   @ViewChild(TourFormComponent) tourForm?: TourFormComponent;
 
   selectedTour = signal<Tour | null>(null);
-  showForm = signal(false);
+  rightPanel = signal<RightPanel>('detail');
+
+  // Tour form state
   editingTour = signal<Tour | null>(null);
 
-  // Live coords from form (for map preview while editing)
+  // Log form state
+  editingLog = signal<TourLog | null>(null);
+  logFormTourId = signal<number>(0);
+
+  // Map form preview
   formFromCoords = signal<[number, number] | null>(null);
   formToCoords = signal<[number, number] | null>(null);
   formRouteGeoJson = signal<any>(null);
@@ -45,25 +52,24 @@ export class DashboardComponent {
     return allLogs.filter(l => l.tourId === tour.id);
   });
 
-  currentUserId = computed(() => {
-    return this.authService.getCurrentUser()?.id ?? 1;
-  });
+  currentUserId = computed(() => this.authService.getCurrentUser()?.id ?? 1);
 
-  // Map shows form coords when editing, otherwise selected tour coords
   mapFrom = computed(() => {
-    if (this.showForm()) return this.formFromCoords();
+    if (this.rightPanel() === 'tour-form') return this.formFromCoords();
     return this.selectedTour()?.fromCoords ?? null;
   });
 
   mapTo = computed(() => {
-    if (this.showForm()) return this.formToCoords();
+    if (this.rightPanel() === 'tour-form') return this.formToCoords();
     return this.selectedTour()?.toCoords ?? null;
   });
 
   mapRouteGeoJson = computed(() => {
-    if (this.showForm()) return this.formRouteGeoJson();
+    if (this.rightPanel() === 'tour-form') return this.formRouteGeoJson();
     return this.selectedTour()?.routeGeoJson ?? null;
   });
+
+  isMapInteractive = computed(() => this.rightPanel() === 'tour-form');
 
   constructor(
     private tourService: TourService,
@@ -74,7 +80,7 @@ export class DashboardComponent {
 
   onTourSelected(tour: Tour): void {
     this.selectedTour.set(tour);
-    this.showForm.set(false);
+    this.rightPanel.set('detail');
   }
 
   onTourCreate(): void {
@@ -82,7 +88,7 @@ export class DashboardComponent {
     this.formFromCoords.set(null);
     this.formToCoords.set(null);
     this.formRouteGeoJson.set(null);
-    this.showForm.set(true);
+    this.rightPanel.set('tour-form');
   }
 
   onTourEdit(tour: Tour): void {
@@ -90,7 +96,7 @@ export class DashboardComponent {
     this.formFromCoords.set(tour.fromCoords);
     this.formToCoords.set(tour.toCoords);
     this.formRouteGeoJson.set(tour.routeGeoJson);
-    this.showForm.set(true);
+    this.rightPanel.set('tour-form');
   }
 
   onTourDelete(tour: Tour): void {
@@ -100,7 +106,7 @@ export class DashboardComponent {
     }
   }
 
-  // ── Map Click Events (interactive mode when form is open) ──
+  // ── Map Click ──
 
   onMapFromSelected(coords: [number, number]): void {
     this.formFromCoords.set(coords);
@@ -112,32 +118,72 @@ export class DashboardComponent {
     this.tourForm?.onMapToSelected(coords);
   }
 
-  // ── Form Events ──
+  // ── Tour Form Events ──
 
-  onFormSave(tour: Tour): void {
+  onTourFormSave(tour: Tour): void {
     if (tour.id && this.editingTour()) {
       this.tourService.updateTour(tour);
       this.selectedTour.set(tour);
     } else {
-      const created = this.tourService.createTour({
-        ...tour,
-        userId: this.currentUserId()
-      });
+      const created = this.tourService.createTour({ ...tour, userId: this.currentUserId() });
       this.selectedTour.set(created);
     }
-    this.showForm.set(false);
+    this.rightPanel.set('detail');
     this.editingTour.set(null);
-    this.formFromCoords.set(null);
-    this.formToCoords.set(null);
-    this.formRouteGeoJson.set(null);
+    this.clearFormCoords();
   }
 
-  onFormCancel(): void {
-    this.showForm.set(false);
+  onTourFormCancel(): void {
+    this.rightPanel.set('detail');
     this.editingTour.set(null);
-    this.formFromCoords.set(null);
-    this.formToCoords.set(null);
-    this.formRouteGeoJson.set(null);
+    this.clearFormCoords();
+  }
+
+  // ── Log Events ──
+
+  onAddLog(tour: Tour): void {
+    this.editingLog.set(null);
+    this.logFormTourId.set(tour.id);
+    this.rightPanel.set('log-form');
+  }
+
+  onEditLog(log: TourLog): void {
+    this.editingLog.set(log);
+    this.logFormTourId.set(log.tourId);
+    this.rightPanel.set('log-form');
+  }
+
+  onDeleteLog(log: TourLog): void {
+    this.tourService.deleteLog(log.id);
+    // Refresh selected tour for updated computed values
+    const updated = this.tourService.getTourById(log.tourId);
+    if (updated) this.selectedTour.set(updated);
+  }
+
+  onLogFormSave(log: TourLog): void {
+    if (log.id && this.editingLog()) {
+      this.tourService.updateLog(log);
+    } else {
+      this.tourService.createLog({
+        tourId: log.tourId,
+        dateTime: log.dateTime,
+        comment: log.comment,
+        difficulty: log.difficulty,
+        totalDistance: log.totalDistance,
+        totalTime: log.totalTime,
+        rating: log.rating
+      });
+    }
+    // Refresh selected tour
+    const updated = this.tourService.getTourById(log.tourId);
+    if (updated) this.selectedTour.set(updated);
+    this.rightPanel.set('detail');
+    this.editingLog.set(null);
+  }
+
+  onLogFormCancel(): void {
+    this.rightPanel.set('detail');
+    this.editingLog.set(null);
   }
 
   // ── Detail Events ──
@@ -154,22 +200,13 @@ export class DashboardComponent {
     URL.revokeObjectURL(url);
   }
 
-  onAddLog(tour: Tour): void {
-    // TODO: tour-log-form
-  }
-
-  onEditLog(log: TourLog): void {
-    // TODO: tour-log-form edit
-  }
-
-  onDeleteLog(log: TourLog): void {
-    this.tourService.deleteLog(log.id);
-    const updated = this.tourService.getTourById(log.tourId);
-    if (updated) this.selectedTour.set(updated);
-  }
-
   onLogout(): void {
     this.authService.logout();
   }
-}
 
+  private clearFormCoords(): void {
+    this.formFromCoords.set(null);
+    this.formToCoords.set(null);
+    this.formRouteGeoJson.set(null);
+  }
+}

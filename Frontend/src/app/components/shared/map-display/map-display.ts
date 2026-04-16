@@ -184,18 +184,4 @@ export class MapDisplayComponent implements AfterViewInit, OnDestroy, OnChanges 
       }).addTo(this.map);
     }
   }
-
-  // ── Public API ──
-
-  invalidateSize(): void { this.map && setTimeout(() => this.map.invalidateSize(), 0); }
-
-  resetSelection(): void {
-    this.selectingFrom.set(true);
-    [this.fromMarker, this.toMarker, this.routeLayer, this.glowLayer, this.dashedLine].forEach(l => {
-      if (l) this.map.removeLayer(l);
-    });
-    this.fromMarker = this.toMarker = this.routeLayer = this.glowLayer = this.dashedLine = null;
-  }
-
-  getMap(): L.Map { return this.map; }
 }

@@ -4,11 +4,12 @@ import {
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Tour, TransportType } from '../../models/tour';
+import { PopupComponent } from '../shared/popup/popup';
 
 @Component({
   selector: 'app-tour-list',
   standalone: true,
-  imports: [FormsModule],
+  imports: [FormsModule, PopupComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './tour-list.html',
   styleUrls: ['./tour-list.scss']
@@ -28,7 +29,6 @@ export class TourListComponent {
   searchQuery = signal('');
   selectedTourId = signal<number | null>(null);
 
-  // Delete confirmation state
   showDeleteConfirm = signal(false);
   tourToDelete = signal<Tour | null>(null);
 
@@ -48,6 +48,12 @@ export class TourListComponent {
     );
   });
 
+  deleteMessage = computed(() => {
+    const tour = this.tourToDelete();
+    if (!tour) return '';
+    return `Are you sure you want to delete "${tour.name}"? This will also delete all associated logs.`;
+  });
+
   onSearch(event: Event): void {
     const value = (event.target as HTMLInputElement).value;
     this.searchQuery.set(value);
@@ -59,7 +65,6 @@ export class TourListComponent {
   }
 
   onCreate(): void {
-    console.log('onCreate called');
     this.tourCreate.emit();
   }
 
@@ -68,7 +73,6 @@ export class TourListComponent {
     this.tourEdit.emit(tour);
   }
 
-  // Delete flow: show confirm popup
   onDeleteClick(event: Event, tour: Tour): void {
     event.stopPropagation();
     this.tourToDelete.set(tour);
@@ -77,9 +81,7 @@ export class TourListComponent {
 
   onConfirmDelete(): void {
     const tour = this.tourToDelete();
-    if (tour) {
-      this.tourDelete.emit(tour);
-    }
+    if (tour) this.tourDelete.emit(tour);
     this.showDeleteConfirm.set(false);
     this.tourToDelete.set(null);
   }

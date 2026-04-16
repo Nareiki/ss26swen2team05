@@ -1,12 +1,10 @@
 <div class="tour-list-panel">
 
-  <!-- Header -->
   <div class="panel-header">
     <h3 class="panel-title">Tours</h3>
     <button class="btn-add" (click)="onCreate()" title="New Tour">+</button>
   </div>
 
-  <!-- Search -->
   <div class="search-box">
     <svg class="search-icon" viewBox="0 0 20 20" fill="currentColor">
       <path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd"/>
@@ -19,7 +17,6 @@
     />
   </div>
 
-  <!-- Tour List -->
   <div class="list-scroll">
     @for (tour of filteredTours(); track tour.id) {
       <div
@@ -67,7 +64,6 @@
       }
     }
 
-    <!-- Add Card — always visible at the bottom -->
     <div class="add-card" (click)="onCreate()">
       <div class="add-card-icon">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
@@ -78,18 +74,17 @@
     </div>
   </div>
 
-  <!-- Delete Confirmation Popup -->
+  <!-- Reusable popup component -->
   @if (showDeleteConfirm()) {
-    <div class="popup-overlay" (click)="onCancelDelete()">
-      <div class="popup" (click)="$event.stopPropagation()">
-        <h2>Delete Tour</h2>
-        <p>Are you sure you want to delete "{{ tourToDelete()?.name }}"? This will also delete all associated logs.</p>
-        <div class="popup-actions">
-          <button class="popup-btn popup-btn--cancel" (click)="onCancelDelete()">Cancel</button>
-          <button class="popup-btn popup-btn--confirm" (click)="onConfirmDelete()">Delete</button>
-        </div>
-      </div>
-    </div>
+    <app-popup
+      title="Delete Tour"
+      [message]="deleteMessage()"
+      confirmText="Delete"
+      cancelText="Cancel"
+      variant="danger"
+      (confirmed)="onConfirmDelete()"
+      (cancelled)="onCancelDelete()">
+    </app-popup>
   }
 
 </div>
