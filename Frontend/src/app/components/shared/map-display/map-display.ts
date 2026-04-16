@@ -166,10 +166,10 @@ export class MapDisplayComponent implements AfterViewInit, OnDestroy, OnChanges 
 
     if (this.routeGeoJson) {
       this.routeLayer = L.geoJSON(this.routeGeoJson, {
-        style: () => ({ color: '#00d4ff', weight: 4, opacity: 0.9 })
+        style: () => ({ color: '#e05252', weight: 4, opacity: 0.95 })
       }).addTo(this.map);
       this.glowLayer = L.geoJSON(this.routeGeoJson, {
-        style: () => ({ color: '#00d4ff', weight: 14, opacity: 0.2 })
+        style: () => ({ color: '#e05252', weight: 14, opacity: 0.18 })
       }).addTo(this.map);
 
       const bounds = this.routeLayer.getBounds();
@@ -179,9 +179,23 @@ export class MapDisplayComponent implements AfterViewInit, OnDestroy, OnChanges 
 
     if (this.from && this.to) {
       this.dashedLine = L.polyline([this.from, this.to], {
-        color: '#00d4ff', weight: 2, opacity: 0.5,
+        color: '#e05252', weight: 2, opacity: 0.55,
         dashArray: '8, 12', dashOffset: '0'
       }).addTo(this.map);
     }
   }
+
+  // ── Public API ──
+
+  invalidateSize(): void { this.map && setTimeout(() => this.map.invalidateSize(), 0); }
+
+  resetSelection(): void {
+    this.selectingFrom.set(true);
+    [this.fromMarker, this.toMarker, this.routeLayer, this.glowLayer, this.dashedLine].forEach(l => {
+      if (l) this.map.removeLayer(l);
+    });
+    this.fromMarker = this.toMarker = this.routeLayer = this.glowLayer = this.dashedLine = null;
+  }
+
+  getMap(): L.Map { return this.map; }
 }

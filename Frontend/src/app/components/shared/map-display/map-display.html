@@ -1,18 +1,18 @@
 <div class="map-wrapper" [style.height]="height">
 
-  <!-- Sci-fi overlays -->
-  <div class="map-scanline"></div>
+  <!-- Map overlays -->
+  <div class="map-paper-grain"></div>
   <div class="map-vignette"></div>
 
   @if (interactive) {
     <div class="map-hud">
       <div class="hud-chip" [class.active]="selectingFrom()">
         <span class="hud-dot hud-dot--from"></span>
-        Click to set start
+        Click to mark start
       </div>
       <div class="hud-chip" [class.active]="!selectingFrom()">
         <span class="hud-dot hud-dot--to"></span>
-        Click to set destination
+        Click to mark destination
       </div>
     </div>
   }
@@ -26,7 +26,7 @@
   <div class="corner corner--bl"></div>
   <div class="corner corner--br"></div>
 
-  <!-- Top/bottom neon edge lines -->
+  <!-- Top/bottom gilded edge lines -->
   <div class="edge-glow edge-glow--top"></div>
   <div class="edge-glow edge-glow--bottom"></div>
 

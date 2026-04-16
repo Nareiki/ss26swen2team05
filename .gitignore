@@ -68,6 +68,7 @@ node_modules/
 
 # Angular environments
 /Frontend/src/environments/environment.ts
+/Frontend/src/environments/
 
 # Build output
 dist/

@@ -9,7 +9,8 @@ export interface Tour {
   distance: number;          // in km, from OpenRouteService
   estimatedTime: number;     // in minutes, from OpenRouteService
   routeGeoJson: any | null;  // GeoJSON from OpenRouteService
-  routeImagePath: string;    // path to stored map screenshot
+  routeImagePath: string;    // path to stored map screenshot (backend-generated)
+  imageUrl: string;          // user-provided image URL for the tour
 
   // Computed attributes
   popularity: number;            // derived from number of logs

@@ -91,16 +91,6 @@ export class TourListComponent {
     this.tourToDelete.set(null);
   }
 
-  getTransportIcon(type: TransportType): string {
-    switch (type) {
-      case TransportType.BIKE: return '🚴';
-      case TransportType.HIKE: return '🥾';
-      case TransportType.RUNNING: return '🏃';
-      case TransportType.VACATION: return '✈️';
-      default: return '📍';
-    }
-  }
-
   formatTime(minutes: number): string {
     const h = Math.floor(minutes / 60);
     const m = minutes % 60;

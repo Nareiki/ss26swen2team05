@@ -25,18 +25,16 @@ export class TourFormComponent implements OnInit {
   isEditMode = signal(false);
   isLoading = signal(false);
 
-  // Form fields
   name = signal('');
   description = signal('');
   from = signal('');
   to = signal('');
   transportType = signal<TransportType>(TransportType.HIKE);
+  imageUrl = signal('');
 
-  // Coordinates
   fromCoords = signal<[number, number] | null>(null);
   toCoords = signal<[number, number] | null>(null);
 
-  // Route data
   distance = signal<number>(0);
   estimatedTime = signal<number>(0);
   routeGeoJson = signal<any>(null);
@@ -44,11 +42,11 @@ export class TourFormComponent implements OnInit {
   errors = signal<Record<string, string>>({});
   statusMessage = signal('');
 
-  transportTypes = [
-    { value: TransportType.BIKE, label: '🚴 Bike' },
-    { value: TransportType.HIKE, label: '🥾 Hike' },
-    { value: TransportType.RUNNING, label: '🏃 Running' },
-    { value: TransportType.VACATION, label: '✈️ Vacation' }
+  transportTypes: { value: TransportType; label: string }[] = [
+    { value: TransportType.BIKE, label: 'Bike' },
+    { value: TransportType.HIKE, label: 'Hike' },
+    { value: TransportType.RUNNING, label: 'Running' },
+    { value: TransportType.VACATION, label: 'Vacation' }
   ];
 
   constructor(private ors: OpenRouteService) {}
@@ -61,6 +59,7 @@ export class TourFormComponent implements OnInit {
       this.from.set(this.tour.from);
       this.to.set(this.tour.to);
       this.transportType.set(this.tour.transportType);
+      this.imageUrl.set(this.tour.imageUrl ?? '');
       this.fromCoords.set(this.tour.fromCoords);
       this.toCoords.set(this.tour.toCoords);
       this.distance.set(this.tour.distance);
@@ -76,11 +75,10 @@ export class TourFormComponent implements OnInit {
       case 'description': this.description.set(value); break;
       case 'from': this.from.set(value); break;
       case 'to': this.to.set(value); break;
+      case 'imageUrl': this.imageUrl.set(value); break;
     }
     this.errors.update(e => { const c = { ...e }; delete c[field]; return c; });
   }
-
-  // ── Geocode when user leaves the input field ──
 
   async onFromBlur(): Promise<void> {
     const text = this.from().trim();
@@ -110,8 +108,6 @@ export class TourFormComponent implements OnInit {
     }
   }
 
-  // ── Map click (called from dashboard via ViewChild) ──
-
   async onMapFromSelected(coords: [number, number]): Promise<void> {
     this.fromCoords.set(coords);
     const name = await this.ors.reverseGeocode(coords[0], coords[1]);
@@ -125,8 +121,6 @@ export class TourFormComponent implements OnInit {
     this.to.set(name ?? `${coords[0].toFixed(4)}, ${coords[1].toFixed(4)}`);
     this.tryCalculateRoute();
   }
-
-  // ── Auto-calculate route ──
 
   private async tryCalculateRoute(): Promise<void> {
     const f = this.fromCoords();
@@ -155,8 +149,6 @@ export class TourFormComponent implements OnInit {
     this.tryCalculateRoute();
   }
 
-  // ── Validation ──
-
   validate(): boolean {
     const errs: Record<string, string> = {};
     if (!this.name().trim()) errs['name'] = 'Name is required';
@@ -165,8 +157,6 @@ export class TourFormComponent implements OnInit {
     this.errors.set(errs);
     return Object.keys(errs).length === 0;
   }
-
-  // ── Save ──
 
   onSave(): void {
     if (!this.validate()) return;
@@ -183,6 +173,7 @@ export class TourFormComponent implements OnInit {
       estimatedTime: this.estimatedTime(),
       routeGeoJson: this.routeGeoJson(),
       routeImagePath: this.tour?.routeImagePath ?? '',
+      imageUrl: this.imageUrl().trim(),
       popularity: this.tour?.popularity ?? 0,
       childFriendliness: this.tour?.childFriendliness ?? 0,
       fromCoords: this.fromCoords(),

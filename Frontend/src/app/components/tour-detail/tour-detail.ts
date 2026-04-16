@@ -66,10 +66,10 @@ export class TourDetailComponent {
 
   getTransportLabel(type: TransportType): string {
     switch (type) {
-      case TransportType.BIKE: return '🚴 Bike';
-      case TransportType.HIKE: return '🥾 Hike';
-      case TransportType.RUNNING: return '🏃 Running';
-      case TransportType.VACATION: return '✈️ Vacation';
+      case TransportType.BIKE: return 'Bike';
+      case TransportType.HIKE: return 'Hike';
+      case TransportType.RUNNING: return 'Running';
+      case TransportType.VACATION: return 'Vacation';
       default: return type;
     }
   }
@@ -85,10 +85,6 @@ export class TourDetailComponent {
   formatDate(dateStr: string): string {
     const d = new Date(dateStr);
     return d.toLocaleDateString('de-AT', { day: '2-digit', month: 'short', year: 'numeric' });
-  }
-
-  getStars(rating: number): string {
-    return '★'.repeat(rating) + '☆'.repeat(5 - rating);
   }
 
   onEdit(): void {

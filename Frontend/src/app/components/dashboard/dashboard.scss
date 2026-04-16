@@ -1,6 +1,8 @@
 // ============================================================
-//  Tour Dashboard — IDE-style layout
-//  [ sidebar (tour-list) | map (center) | detail (right) ]
+//  Tour Dashboard — Cartographer's Desk
+//  Layout: topbar → workspace(list+map) → bottom-panel
+//  Bottom panel is IN-FLOW: it pushes the map up, not overlay.
+//  Map stays visible and clickable at all times.
 // ============================================================
 
 :host {
@@ -13,7 +15,7 @@
   display: flex;
   flex-direction: column;
   height: 100%;
-  background: var(--bg-base);
+  background: var(--surface-base);
 }
 
 // ─── Top Bar ───
@@ -21,90 +23,103 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 16px;
-  height: 48px;
+  padding: 0 20px;
+  height: 54px;
   flex-shrink: 0;
-  border-bottom: 1px solid var(--border-subtle);
-  background: var(--bg-surface);
+  background: linear-gradient(180deg, var(--surface-raised), var(--surface-base));
+  border-bottom: 1px solid var(--edge);
+  position: relative;
+
+  &::after {
+    content: '';
+    position: absolute;
+    bottom: -1px;
+    left: 10%;
+    right: 10%;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--brass) 30%, var(--brass-bright) 50%, var(--brass) 70%, transparent);
+    opacity: 0.5;
+  }
 }
 
 .topbar-left {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
 }
 
 .logo-icon {
-  width: 24px;
-  height: 24px;
+  width: 30px;
+  height: 30px;
   flex-shrink: 0;
+  filter: drop-shadow(0 0 4px var(--brass-glow));
 }
 
 .logo-text {
   font-family: var(--font-display);
-  font-size: 0.8rem;
+  font-size: 1.05rem;
   font-weight: 700;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: var(--cyan-400);
+  color: var(--brass);
 }
 
 .topbar-right {
   display: flex;
   align-items: center;
-  gap: 8px;
 }
 
 .topbar-btn {
   font-family: var(--font-display);
-  font-size: 0.6rem;
+  font-size: 0.7rem;
   font-weight: 600;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
-  padding: 5px 12px;
-  border-radius: var(--radius-md);
-  border: 1px solid var(--border-subtle);
+  padding: 7px 16px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--edge);
   background: transparent;
-  color: var(--text-muted);
+  color: var(--ink-faded);
   cursor: pointer;
-  transition: all 150ms ease;
+  transition: all var(--ease-fast);
 
   &:hover {
-    color: var(--text-primary);
-    border-color: var(--border-default);
-    background: rgba(255, 255, 255, 0.03);
+    color: var(--brass);
+    border-color: var(--edge-strong);
+    background: rgba(212, 169, 74, 0.05);
   }
 }
 
-// ─── Workspace (3-column) ───
+// ─── Workspace: list + map ───
+// flex: 1 means it takes all available space.
+// When bottom-panel appears, workspace shrinks.
 .workspace {
   display: flex;
   flex: 1;
-  min-height: 0;
+  min-height: 200px;  // never collapse completely
   gap: 1px;
-  background: var(--border-subtle);
-  // Force all children to stretch full height
+  background: var(--edge-faint);
   align-items: stretch;
+  transition: flex 300ms ease;
 }
 
-// ─── Sidebar (Tour List) ───
 .sidebar {
-  width: 280px;
-  min-width: 220px;
+  width: 380px;
+  min-width: 280px;
   flex-shrink: 0;
-  background: var(--bg-base);
-  padding: 8px;
+  background: var(--surface-base);
+  padding: 10px;
 }
 
-// ─── Map Panel (Center) ───
 .panel-map {
   flex: 1;
   min-width: 0;
-  background: var(--bg-base);
-  padding: 8px;
+  background: var(--surface-base);
+  padding: 10px;
   position: relative;
+  z-index: 1;
+  isolation: isolate;
 
-  // Make app-map-display fill the panel
   app-map-display,
   ::ng-deep app-map-display {
     display: block;
@@ -112,144 +127,146 @@
   }
 }
 
-// ─── Detail Panel (Right) ───
-.panel-detail {
-  width: 300px;
-  min-width: 240px;
+// ─── Bottom Panel (in-flow, NOT fixed/overlay) ───
+.bottom-panel {
   flex-shrink: 0;
-  background: var(--bg-base);
-  padding: 8px;
-  overflow-y: auto;
-}
-
-// ─── Detail Placeholder (until tour-detail component is built) ───
-.detail-placeholder {
-  height: 100%;
-  background: var(--bg-surface);
-  border: 1px solid var(--border-subtle);
-  border-radius: var(--radius-lg);
-  padding: 16px;
+  height: 480px;
+  max-height: 60vh;
+  background: var(--surface-raised);
+  border-top: 1px solid var(--edge-strong);
   display: flex;
   flex-direction: column;
-  gap: 12px;
-  overflow-y: auto;
+  overflow: hidden;
+  animation: panelGrow 250ms ease;
+  position: relative;
 
-  &--empty {
-    align-items: center;
-    justify-content: center;
-
-    p {
-      font-family: var(--font-mono);
-      font-size: 0.8rem;
-      color: var(--text-muted);
-      margin: 0;
-    }
+  // Brass trim on top
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 15%;
+    right: 15%;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--brass), transparent);
+    opacity: 0.6;
   }
 }
 
-.detail-title {
-  font-family: var(--font-display);
-  font-size: 0.85rem;
-  font-weight: 700;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  color: var(--text-primary);
-  margin: 0;
-}
-
-.detail-desc {
-  font-family: var(--font-body);
-  font-size: 0.85rem;
-  color: var(--text-secondary);
-  margin: 0;
-  line-height: 1.4;
-}
-
-.detail-stats {
+// Top bar of the panel with close button
+.bottom-panel-bar {
   display: flex;
-  flex-direction: column;
-  gap: 8px;
-  padding: 12px 0;
-  border-top: 1px solid var(--border-subtle);
-  border-bottom: 1px solid var(--border-subtle);
+  justify-content: flex-end;
+  padding: 6px 14px;
+  flex-shrink: 0;
+  border-bottom: 1px solid var(--edge-faint);
 }
 
-.detail-stat {
+.bottom-close {
   display: flex;
-  justify-content: space-between;
   align-items: center;
-}
-
-.detail-stat-label {
+  gap: 5px;
   font-family: var(--font-display);
-  font-size: 0.55rem;
-  font-weight: 500;
+  font-size: 0.6rem;
+  font-weight: 600;
   letter-spacing: 0.1em;
   text-transform: uppercase;
-  color: var(--text-muted);
-}
-
-.detail-stat-value {
-  font-family: var(--font-mono);
-  font-size: 0.8rem;
-  color: var(--cyan-300);
-}
-
-.detail-section-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-
-  span {
-    font-family: var(--font-display);
-    font-size: 0.65rem;
-    font-weight: 600;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    color: var(--text-secondary);
-  }
-}
-
-.btn-sm {
-  font-family: var(--font-display);
-  font-size: 0.55rem;
-  font-weight: 600;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  padding: 4px 10px;
-  border-radius: var(--radius-md);
-  border: 1px solid var(--border-accent);
+  color: var(--ink-faded);
   background: transparent;
-  color: var(--cyan-400);
+  border: 1px solid var(--edge);
+  border-radius: var(--radius-sm);
+  padding: 4px 10px;
   cursor: pointer;
-  transition: all 150ms ease;
+  transition: all var(--ease-fast);
+
+  svg { width: 14px; height: 14px; }
 
   &:hover {
-    background: rgba(0, 212, 255, 0.08);
+    color: var(--brass);
+    border-color: var(--edge-strong);
   }
 }
 
-.detail-empty {
-  font-family: var(--font-mono);
-  font-size: 0.75rem;
-  color: var(--text-muted);
-  margin: 0;
+.bottom-content {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+
+  > * {
+    display: block;
+    height: 100%;
+  }
 }
 
-// ─── Responsive ───
-@media (max-width: 900px) {
+@keyframes panelGrow {
+  from { height: 0; opacity: 0; }
+  to   { height: 480px; opacity: 1; }
+}
+
+// ─── Responsive: Tablet ───
+@media (max-width: 1024px) {
+  .sidebar {
+    width: 320px;
+    min-width: 240px;
+  }
+
+  .bottom-panel {
+    height: 440px;
+  }
+}
+
+// ─── Responsive: Mobile ───
+@media (max-width: 768px) {
+  :host {
+    height: 100vh;
+    overflow: hidden;
+  }
+
+  .dashboard {
+    height: 100%;
+    overflow-y: auto;
+    overflow-x: hidden;
+  }
+
   .workspace {
     flex-direction: column;
+    min-height: 0;
+    flex-shrink: 1;
   }
 
-  .sidebar,
-  .panel-detail {
+  .sidebar {
     width: 100%;
-    height: 250px;
+    flex: 1;
+    min-height: 100px;
   }
 
+  // On mobile, map hides when bottom panel is open
+  // The panel pushes it out naturally via flex
   .panel-map {
-    height: 300px;
-    flex: none;
+    flex: 1;
+    min-height: 0;          // can fully collapse
+    overflow: hidden;
+  }
+
+  .bottom-panel {
+    height: auto;
+    min-height: 250px;
+    max-height: none;
+    flex-shrink: 0;
+    overflow-y: auto;
+  }
+
+  .topbar {
+    padding: 0 12px;
+    height: 44px;
+    flex-shrink: 0;
+  }
+
+  .logo-text { font-size: 0.85rem; }
+}
+
+@media (max-width: 480px) {
+  .sidebar {
+    min-height: 80px;
   }
 }

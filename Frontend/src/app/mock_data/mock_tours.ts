@@ -3,7 +3,7 @@ import { Tour, TransportType } from '../models/tour';
 export const MOCK_TOURS: Tour[] = [
   {
     id: 1,
-    userId: 2,
+    userId: 1,
     name: 'Wien → Graz',
     description: 'Classic Austrian road trip through Semmering pass',
     from: 'Wien',
@@ -13,6 +13,7 @@ export const MOCK_TOURS: Tour[] = [
     estimatedTime: 480,
     routeGeoJson: null,
     routeImagePath: '',
+    imageUrl: 'https://picsum.photos/seed/bike-tour/800/450',
     popularity: 3,
     childFriendliness: 2,
     fromCoords: [48.2082, 16.3738],
@@ -20,7 +21,7 @@ export const MOCK_TOURS: Tour[] = [
   },
   {
     id: 2,
-    userId: 2,
+    userId: 1,
     name: 'Innsbruck Trail',
     description: 'Mountain hike through the Nordkette range',
     from: 'Innsbruck Hauptbahnhof',
@@ -30,6 +31,7 @@ export const MOCK_TOURS: Tour[] = [
     estimatedTime: 240,
     routeGeoJson: null,
     routeImagePath: '',
+    imageUrl: 'https://picsum.photos/seed/mountain-hike/800/450',
     popularity: 5,
     childFriendliness: 1,
     fromCoords: [47.2632, 11.3933],
@@ -37,7 +39,7 @@ export const MOCK_TOURS: Tour[] = [
   },
   {
     id: 3,
-    userId: 2,
+    userId: 1,
     name: 'Donaukanal Run',
     description: 'Morning run along the Donaukanal in Vienna',
     from: 'Schwedenplatz',
@@ -47,6 +49,7 @@ export const MOCK_TOURS: Tour[] = [
     estimatedTime: 45,
     routeGeoJson: null,
     routeImagePath: '',
+    imageUrl: 'https://picsum.photos/seed/running-path/800/450',
     popularity: 7,
     childFriendliness: 4,
     fromCoords: [48.2117, 16.3778],
@@ -64,6 +67,7 @@ export const MOCK_TOURS: Tour[] = [
     estimatedTime: 60,
     routeGeoJson: null,
     routeImagePath: '',
+    imageUrl: 'https://picsum.photos/seed/city-walk/800/450',
     popularity: 2,
     childFriendliness: 5,
     fromCoords: [47.8057, 13.0427],

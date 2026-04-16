@@ -1,6 +1,5 @@
 <div class="form-panel">
 
-  <!-- Header -->
   <div class="form-header">
     <h3 class="form-title">{{ isEditMode() ? 'Edit Tour' : 'New Tour' }}</h3>
     <button class="icon-btn" (click)="onCancel()" title="Close">
@@ -8,15 +7,13 @@
     </button>
   </div>
 
-  <!-- Form -->
   <div class="form-scroll">
 
-    <!-- Name -->
     <div class="field">
       <label>Tour Name</label>
       <input
         type="text"
-        placeholder="e.g. Wien → Graz"
+        placeholder="e.g. Wien to Graz"
         [value]="name()"
         (input)="onFieldChange('name', $event)"
         [class.invalid]="errors()['name']"
@@ -26,7 +23,6 @@
       }
     </div>
 
-    <!-- Transport Type -->
     <div class="field">
       <label>Transport Type</label>
       <div class="transport-selector">
@@ -35,13 +31,36 @@
             class="transport-option"
             [class.selected]="transportType() === type.value"
             (click)="onTransportChange(type.value)">
-            {{ type.label }}
+            @switch (type.value) {
+              @case ('BIKE') {
+                <svg class="transport-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                  <circle cx="5.5" cy="17.5" r="3.5"/><circle cx="18.5" cy="17.5" r="3.5"/>
+                  <path d="M15 6a1 1 0 100-2 1 1 0 000 2zm-3 11.5L8 10h4l3.5-4 3 7.5"/>
+                </svg>
+              }
+              @case ('HIKE') {
+                <svg class="transport-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M3 20l4-8 3 4 4-7 7 11H3z"/><circle cx="13" cy="6" r="1.5"/>
+                </svg>
+              }
+              @case ('RUNNING') {
+                <svg class="transport-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                  <circle cx="15" cy="4" r="1.5"/>
+                  <path d="M9 20l2-5-3-2 2-4 4 2 2-3 3 4m-8-5l-3 3"/>
+                </svg>
+              }
+              @case ('VACATION') {
+                <svg class="transport-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M21 16l-6-4V5a1.5 1.5 0 00-3 0v7l-6 4v2l6-2v4l-2 1.5V22l3.5-1 3.5 1v-1.5L15 19v-4l6 2v-1z"/>
+                </svg>
+              }
+            }
+            <span>{{ type.label }}</span>
           </button>
         }
       </div>
     </div>
 
-    <!-- From -->
     <div class="field">
       <label>From</label>
       <div class="input-with-status">
@@ -54,7 +73,9 @@
           [class.invalid]="errors()['from']"
         />
         @if (fromCoords()) {
-          <span class="coord-badge" title="Coordinates found">📍</span>
+          <span class="coord-badge" title="Coordinates found">
+            <svg viewBox="0 0 16 16" fill="currentColor"><path d="M8 1a5 5 0 00-5 5c0 3.5 5 9 5 9s5-5.5 5-9a5 5 0 00-5-5zm0 7a2 2 0 110-4 2 2 0 010 4z"/></svg>
+          </span>
         }
       </div>
       @if (errors()['from']) {
@@ -62,7 +83,6 @@
       }
     </div>
 
-    <!-- To -->
     <div class="field">
       <label>To</label>
       <div class="input-with-status">
@@ -75,7 +95,9 @@
           [class.invalid]="errors()['to']"
         />
         @if (toCoords()) {
-          <span class="coord-badge" title="Coordinates found">📍</span>
+          <span class="coord-badge" title="Coordinates found">
+            <svg viewBox="0 0 16 16" fill="currentColor"><path d="M8 1a5 5 0 00-5 5c0 3.5 5 9 5 9s5-5.5 5-9a5 5 0 00-5-5zm0 7a2 2 0 110-4 2 2 0 010 4z"/></svg>
+          </span>
         }
       </div>
       @if (errors()['to']) {
@@ -83,8 +105,7 @@
       }
     </div>
 
-    <!-- Description -->
-    <div class="field">
+    <div class="field field--full">
       <label>Description <span class="optional">(optional)</span></label>
       <textarea
         placeholder="Describe the tour..."
@@ -94,9 +115,23 @@
       ></textarea>
     </div>
 
-    <!-- Route Stats (auto-calculated) -->
+    <div class="field field--full">
+      <label>Image URL <span class="optional">(optional)</span></label>
+      <input
+        type="text"
+        placeholder="https://example.com/image.jpg"
+        [value]="imageUrl()"
+        (input)="onFieldChange('imageUrl', $event)"
+      />
+      @if (imageUrl()) {
+        <div class="image-preview">
+          <img [src]="imageUrl()" alt="Tour image preview" (error)="statusMessage.set('Image could not be loaded')" />
+        </div>
+      }
+    </div>
+
     @if (distance() > 0 || estimatedTime() > 0) {
-      <div class="route-stats">
+      <div class="route-stats field--full">
         <div class="route-stat">
           <span class="route-stat-label">Distance</span>
           <span class="route-stat-value">{{ distance() }} km</span>
@@ -108,7 +143,6 @@
       </div>
     }
 
-    <!-- Status / Loading -->
     @if (statusMessage()) {
       <div class="status-msg" [class.loading]="isLoading()">
         @if (isLoading()) {
@@ -118,23 +152,21 @@
       </div>
     }
 
-    <!-- Hint -->
-    <div class="form-hint">
+    <div class="form-hint field--full">
       <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/></svg>
       <span>Type a location name or click on the map to set start and destination. Route is calculated automatically.</span>
     </div>
 
-  </div>
+    <div class="form-actions field--full">
+      <button class="btn-cancel" (click)="onCancel()">Cancel</button>
+      <button class="btn-save" (click)="onSave()" [disabled]="isLoading()">
+        @if (isLoading()) {
+          <span class="spinner spinner--sm"></span>
+        }
+        {{ isEditMode() ? 'Save Changes' : 'Create Tour' }}
+      </button>
+    </div>
 
-  <!-- Actions -->
-  <div class="form-actions">
-    <button class="btn-cancel" (click)="onCancel()">Cancel</button>
-    <button class="btn-save" (click)="onSave()" [disabled]="isLoading()">
-      @if (isLoading()) {
-        <span class="spinner spinner--sm"></span>
-      }
-      {{ isEditMode() ? 'Save Changes' : 'Create Tour' }}
-    </button>
   </div>
 
 </div>

@@ -1,5 +1,7 @@
 // ============================================================
-//  Auth Component — Neo Sci-Fi Login / Register
+//  Auth — Cartographer's Atlas Theme
+//  Candlelit page with parchment card, brass accents, and
+//  soft ink flourishes.
 // ============================================================
 
 :host {
@@ -8,7 +10,6 @@
   height: 100vh;
 }
 
-// ─── Full-page layout ───
 .auth-page {
   display: flex;
   align-items: center;
@@ -19,7 +20,7 @@
   overflow: hidden;
 }
 
-// ─── Animated Background ───
+// ─── Background: parchment grain, candle glows, ink flourish ───
 .auth-bg {
   position: fixed;
   inset: 0;
@@ -27,104 +28,111 @@
   pointer-events: none;
 }
 
-.grid-overlay {
+.parchment-grain {
   position: absolute;
   inset: 0;
   background-image:
-    linear-gradient(rgba(0, 212, 255, 0.03) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(0, 212, 255, 0.03) 1px, transparent 1px);
-  background-size: 50px 50px;
-  mask-image: radial-gradient(ellipse 70% 70% at 50% 50%, black 20%, transparent 70%);
+    radial-gradient(circle at 18% 24%, rgba(212, 169, 74, 0.03) 0%, transparent 50%),
+    radial-gradient(circle at 82% 70%, rgba(224, 82, 82, 0.025) 0%, transparent 55%),
+    linear-gradient(rgba(212, 169, 74, 0.02) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(212, 169, 74, 0.02) 1px, transparent 1px);
+  background-size:
+    100% 100%,
+    100% 100%,
+    40px 40px,
+    40px 40px;
+  mask-image: radial-gradient(ellipse 80% 70% at 50% 50%, black 30%, transparent 80%);
 }
 
-.orb {
+// Soft candlelight glow — like a candle illuminating the desk
+.candle-glow {
   position: absolute;
   border-radius: 50%;
-  filter: blur(100px);
-  animation: orbFloat 12s ease-in-out infinite;
+  filter: blur(120px);
+  animation: candleFlicker 8s ease-in-out infinite;
 
-  &--cyan {
-    width: 500px;
-    height: 500px;
-    background: var(--cyan-400);
-    opacity: 0.06;
-    top: -10%;
-    right: -5%;
+  &--top {
+    width: 520px;
+    height: 520px;
+    background: var(--brass);
+    opacity: 0.07;
+    top: -12%;
+    right: -8%;
     animation-delay: 0s;
   }
 
-  &--magenta {
-    width: 400px;
-    height: 400px;
-    background: var(--magenta-400);
-    opacity: 0.05;
-    bottom: -10%;
-    left: -5%;
-    animation-delay: -6s;
+  &--bottom {
+    width: 420px;
+    height: 420px;
+    background: var(--ruby);
+    opacity: 0.04;
+    bottom: -15%;
+    left: -10%;
+    animation-delay: -4s;
   }
 }
 
-@keyframes orbFloat {
-  0%, 100% { transform: translate(0, 0) scale(1); }
-  33%      { transform: translate(30px, -20px) scale(1.05); }
-  66%      { transform: translate(-20px, 15px) scale(0.95); }
+@keyframes candleFlicker {
+  0%, 100% { transform: translate(0, 0) scale(1); opacity: var(--_op, 0.07); }
+  25%      { transform: translate(10px, -5px) scale(1.02); opacity: calc(var(--_op, 0.07) * 1.15); }
+  50%      { transform: translate(-5px, 8px) scale(0.98); opacity: calc(var(--_op, 0.07) * 0.9); }
+  75%      { transform: translate(15px, 3px) scale(1.03); opacity: calc(var(--_op, 0.07) * 1.1); }
 }
 
-.scanline {
+// Ornamental horizontal ink line across the page
+.ink-flourish {
   position: absolute;
-  top: 0;
+  top: 50%;
   left: 0;
   right: 0;
-  height: 2px;
-  background: linear-gradient(90deg, transparent, var(--cyan-400), transparent);
-  opacity: 0.08;
-  animation: scanMove 6s linear infinite;
+  height: 1px;
+  background: linear-gradient(90deg,
+    transparent,
+    rgba(212, 169, 74, 0.06) 20%,
+    rgba(212, 169, 74, 0.15) 50%,
+    rgba(212, 169, 74, 0.06) 80%,
+    transparent
+  );
+  transform: translateY(-50%);
 }
 
-@keyframes scanMove {
-  0%   { top: -2px; }
-  100% { top: 100%; }
-}
-
-// ─── Auth Container (Card) ───
+// ─── The parchment card ───
 .auth-container {
   position: relative;
   z-index: 1;
   width: 100%;
   max-width: 420px;
-  background: var(--bg-surface);
-  border: 1px solid var(--border-subtle);
-  border-radius: var(--radius-xl);
+  background: var(--surface-raised);
+  border: 1px solid var(--edge);
+  border-radius: var(--radius-lg);
   padding: var(--space-2xl) var(--space-xl);
   box-shadow:
     var(--shadow-lg),
-    0 0 80px rgba(0, 212, 255, 0.04),
-    inset 0 1px 0 rgba(255, 255, 255, 0.04);
+    0 0 100px rgba(212, 169, 74, 0.05),
+    inset 0 1px 0 rgba(240, 228, 204, 0.04);
 
-  // Top neon edge
+  // Gilded top edge (like gold leaf on manuscript)
   &::before {
     content: '';
     position: absolute;
     top: 0;
-    left: 20%;
-    right: 20%;
+    left: 15%;
+    right: 15%;
     height: 1px;
-    background: linear-gradient(90deg, transparent, var(--cyan-400), transparent);
-    opacity: 0.6;
-    border-radius: 1px;
+    background: linear-gradient(90deg, transparent, var(--brass) 30%, var(--brass-bright) 50%, var(--brass) 70%, transparent);
+    opacity: 0.7;
   }
 
-  // Corner accents
+  // Subtle ruby underline at bottom (wax seal hint)
   &::after {
     content: '';
     position: absolute;
     bottom: 0;
-    left: 20%;
-    right: 20%;
+    left: 25%;
+    right: 25%;
     height: 1px;
-    background: linear-gradient(90deg, transparent, var(--magenta-400), transparent);
-    opacity: 0.2;
-    border-radius: 1px;
+    background: linear-gradient(90deg, transparent, var(--ruby), transparent);
+    opacity: 0.25;
   }
 }
 
@@ -143,28 +151,36 @@
 }
 
 .logo-icon {
-  width: 36px;
-  height: 36px;
-  animation: pulseGlow 3s ease-in-out infinite;
-  filter: drop-shadow(0 0 6px var(--cyan-glow));
+  width: 42px;
+  height: 42px;
+  animation: compassGlow 4s ease-in-out infinite;
+  filter: drop-shadow(0 0 8px var(--brass-glow));
+}
+
+@keyframes compassGlow {
+  0%, 100% { filter: drop-shadow(0 0 6px var(--brass-glow)); }
+  50%      { filter: drop-shadow(0 0 14px var(--brass-glow-strong)) drop-shadow(0 0 24px rgba(212, 169, 74, 0.3)); }
 }
 
 .logo-text {
   font-family: var(--font-display);
   font-size: var(--text-2xl);
-  letter-spacing: 0.08em;
-  background: linear-gradient(135deg, var(--cyan-300), var(--cyan-400));
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  background: linear-gradient(135deg, var(--brass-light), var(--brass), var(--brass-dark));
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
   text-transform: uppercase;
+  margin: 0;
 }
 
 .auth-subtitle {
-  font-family: var(--font-mono);
+  font-family: var(--font-script);
+  font-style: italic;
   font-size: var(--text-sm);
-  color: var(--text-muted);
-  letter-spacing: 0.04em;
+  color: var(--ink-faded);
+  letter-spacing: 0.02em;
   margin: 0;
 }
 
@@ -172,8 +188,8 @@
 .mode-toggle {
   display: flex;
   position: relative;
-  background: var(--bg-void);
-  border: 1px solid var(--border-subtle);
+  background: var(--surface-void);
+  border: 1px solid var(--edge);
   border-radius: var(--radius-pill);
   padding: 3px;
   margin-bottom: var(--space-xl);
@@ -184,23 +200,23 @@
   font-family: var(--font-display);
   font-size: var(--text-xs);
   font-weight: 600;
-  letter-spacing: 0.1em;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: var(--text-muted);
+  color: var(--ink-faded);
   background: transparent;
   border: none;
-  padding: 8px 0;
+  padding: 9px 0;
   cursor: pointer;
   position: relative;
   z-index: 2;
-  transition: color var(--transition-fast);
+  transition: color var(--ease-fast);
 
   &.active {
-    color: var(--text-on-accent);
+    color: var(--ink-on-brass);
   }
 
   &:not(.active):hover {
-    color: var(--text-secondary);
+    color: var(--ink);
   }
 }
 
@@ -210,10 +226,10 @@
   bottom: 3px;
   left: 3px;
   width: calc(50% - 3px);
-  background: linear-gradient(135deg, var(--cyan-500), var(--cyan-400));
+  background: linear-gradient(135deg, var(--brass-dark), var(--brass));
   border-radius: var(--radius-pill);
-  transition: transform var(--transition-base);
-  box-shadow: 0 0 12px var(--cyan-glow);
+  transition: transform var(--ease);
+  box-shadow: 0 0 12px var(--brass-glow), inset 0 1px 0 rgba(255, 255, 255, 0.15);
   z-index: 1;
 
   &.right {
@@ -246,8 +262,8 @@
     transform: translateY(-50%);
     width: 16px;
     height: 16px;
-    color: var(--text-muted);
-    transition: color var(--transition-fast);
+    color: var(--ink-faded);
+    transition: color var(--ease-fast);
     pointer-events: none;
     z-index: 1;
   }
@@ -257,20 +273,21 @@
   }
 
   &:focus-within .input-icon {
-    color: var(--cyan-400);
+    color: var(--brass);
   }
 }
 
-// ─── Error / Success Messages ───
+// ─── Messages ───
 .error-message {
   display: flex;
   align-items: center;
   gap: var(--space-sm);
-  font-family: var(--font-mono);
+  font-family: var(--font-script);
+  font-style: italic;
   font-size: var(--text-sm);
-  color: var(--danger);
-  background: rgba(255, 59, 92, 0.06);
-  border: 1px solid rgba(255, 59, 92, 0.15);
+  color: var(--ruby-bright);
+  background: rgba(224, 82, 82, 0.08);
+  border: 1px solid rgba(224, 82, 82, 0.25);
   border-radius: var(--radius-md);
   padding: 10px var(--space-md);
   animation: fadeIn 0.3s ease-out;
@@ -286,11 +303,12 @@
   display: flex;
   align-items: center;
   gap: var(--space-sm);
-  font-family: var(--font-mono);
+  font-family: var(--font-script);
+  font-style: italic;
   font-size: var(--text-sm);
-  color: var(--success);
-  background: rgba(0, 230, 138, 0.06);
-  border: 1px solid rgba(0, 230, 138, 0.15);
+  color: var(--emerald-bright);
+  background: rgba(90, 200, 120, 0.08);
+  border: 1px solid rgba(90, 200, 120, 0.25);
   border-radius: var(--radius-md);
   padding: 10px var(--space-md);
   animation: fadeIn 0.3s ease-out;
@@ -309,12 +327,13 @@
   padding: 12px var(--space-lg);
   margin-top: var(--space-sm);
   font-size: var(--text-sm);
+  letter-spacing: 0.14em;
 }
 
 .btn-arrow {
   width: 16px;
   height: 16px;
-  transition: transform var(--transition-fast);
+  transition: transform var(--ease-fast);
 }
 
 .btn--full:hover .btn-arrow {
