@@ -4,7 +4,7 @@
         <TargetFramework>net10.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
-        <RootNamespace>TourPlanner.API</RootNamespace>
+        <RootNamespace>TourPlanner.Application</RootNamespace>
     </PropertyGroup>
 
     <ItemGroup>
@@ -12,8 +12,13 @@
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\TourPlanner.Application\TourPlanner.Application.csproj" />
+        <PackageReference Include="FluentValidation" Version="11.11.0" />
+        <PackageReference Include="FluentValidation.DependencyInjectionExtensions" Version="11.11.0" />
+    </ItemGroup>
+
+    <ItemGroup>
         <ProjectReference Include="..\TourPlanner.Application.Contracts\TourPlanner.Application.Contracts.csproj" />
+        <ProjectReference Include="..\TourPlanner.Domain\TourPlanner.Domain.csproj" />
     </ItemGroup>
 
 </Project>
