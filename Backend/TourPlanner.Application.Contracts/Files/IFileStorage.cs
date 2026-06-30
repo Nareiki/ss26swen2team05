@@ -1,4 +1,4 @@
-namespace TourPlanner.Contracts.Files;
+namespace TourPlanner.Application.Contracts.Files;
 
 public interface IFileStorage
 {

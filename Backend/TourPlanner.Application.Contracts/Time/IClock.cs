@@ -1,6 +1,4 @@
-using System;
-
-namespace TourPlanner.Contracts.Time;
+namespace TourPlanner.Application.Contracts.Time;
 
 public interface IClock
 {

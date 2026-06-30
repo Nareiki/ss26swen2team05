@@ -1,4 +1,4 @@
-namespace TourPlanner.Contracts.Security;
+namespace TourPlanner.Application.Contracts.Security;
 
 public interface IPasswordHasher
 {

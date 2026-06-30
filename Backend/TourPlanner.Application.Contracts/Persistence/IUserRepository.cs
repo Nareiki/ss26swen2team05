@@ -1,6 +1,6 @@
-using TourPlanner.Domain;
+using TourPlanner.Domain.Entities;
 
-namespace TourPlanner.Contracts.Persistence;
+namespace TourPlanner.Application.Contracts.Persistence;
 
 
 public interface IUserRepository

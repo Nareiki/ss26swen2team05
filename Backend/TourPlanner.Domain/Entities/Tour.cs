@@ -1,6 +1,6 @@
 using TourPlanner.Domain.Enums;
 
-namespace TourPlanner.Domain;
+namespace TourPlanner.Domain.Entities;
 
 public sealed class Tour : EntityBase
 {

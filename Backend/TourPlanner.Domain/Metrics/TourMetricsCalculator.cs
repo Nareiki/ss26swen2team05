@@ -1,4 +1,6 @@
-namespace TourPlanner.Domain;
+using TourPlanner.Domain.Entities;
+
+namespace TourPlanner.Domain.Metrics;
 
 public static class TourMetricsCalculator
 {

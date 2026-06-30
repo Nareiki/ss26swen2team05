@@ -3,12 +3,14 @@ using TourPlanner.Application.Abstractions;
 using TourPlanner.Application.Abstractions.Context;
 using TourPlanner.Application.Abstractions.UseCases;
 using TourPlanner.Application.Common.Exceptions;
+using TourPlanner.Application.Contracts.Files;
+using TourPlanner.Application.Contracts.Persistence;
 using TourPlanner.Application.Dtos.Tours;
 using TourPlanner.Application.Dtos.TourLogs;
-using TourPlanner.Contracts.Persistence;
-using TourPlanner.Contracts.Files;
 using TourPlanner.Domain;
-using IOpenRouteService = TourPlanner.Contracts.Routing.IOpenRouteService;
+using TourPlanner.Domain.Entities;
+using TourPlanner.Domain.Metrics;
+using IOpenRouteService = TourPlanner.Application.Contracts.Routing.IOpenRouteService;
 
 namespace TourPlanner.Application.Services;
 

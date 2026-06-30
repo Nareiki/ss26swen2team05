@@ -1,7 +1,6 @@
-using TourPlanner.Domain;
 using TourPlanner.Domain.Enums;
 
-namespace TourPlanner.Contracts.Routing;
+namespace TourPlanner.Application.Contracts.Routing;
 
 public interface IOpenRouteService
 {

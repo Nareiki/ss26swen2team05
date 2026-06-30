@@ -4,11 +4,11 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using TourPlanner.Application.Abstractions;
 using TourPlanner.Application.Abstractions.Context;
-using TourPlanner.Contracts.Persistence;
-using TourPlanner.Contracts.Security;
-using TourPlanner.Contracts.Files;
-using TourPlanner.Contracts.Routing;
-using TourPlanner.Contracts.Time;
+using TourPlanner.Application.Contracts.Files;
+using TourPlanner.Application.Contracts.Persistence;
+using TourPlanner.Application.Contracts.Routing;
+using TourPlanner.Application.Contracts.Security;
+using TourPlanner.Application.Contracts.Time;
 using TourPlanner.Infrastructure.Options;
 using TourPlanner.Infrastructure.Persistence;
 using TourPlanner.Infrastructure.Services;
@@ -29,17 +29,17 @@ public static class DependencyInjection
 
         services.AddHttpContextAccessor();
         services.AddDbContext<TourPlannerDbContext>(options => options.UseNpgsql(connectionString));
-        services.AddScoped<TourPlanner.Contracts.Persistence.IUnitOfWork>(sp => sp.GetRequiredService<TourPlannerDbContext>());
-        services.AddScoped<TourPlanner.Contracts.Persistence.IUserRepository, UserRepository>();
-        services.AddScoped<TourPlanner.Contracts.Persistence.IUserSessionRepository, UserSessionRepository>();
-        services.AddScoped<TourPlanner.Contracts.Persistence.ITourRepository, TourRepository>();
-        services.AddScoped<TourPlanner.Contracts.Persistence.ITourLogRepository, TourLogRepository>();
-        services.AddSingleton<TourPlanner.Contracts.Time.IClock, SystemClock>();
+        services.AddScoped<IUnitOfWork>(sp => sp.GetRequiredService<TourPlannerDbContext>());
+        services.AddScoped<IUserRepository, UserRepository>();
+        services.AddScoped<IUserSessionRepository, UserSessionRepository>();
+        services.AddScoped<ITourRepository, TourRepository>();
+        services.AddScoped<ITourLogRepository, TourLogRepository>();
+        services.AddSingleton<IClock, SystemClock>();
         services.AddScoped<ICurrentUserContext, CurrentUserContext>();
-        services.AddScoped<TourPlanner.Contracts.Security.IPasswordHasher, Pbkdf2PasswordHasher>();
-        services.AddScoped<TourPlanner.Contracts.Security.ITokenService, JwtTokenService>();
-        services.AddScoped<TourPlanner.Contracts.Files.IFileStorage, FileStorage>();
-        services.AddHttpClient<TourPlanner.Contracts.Routing.IOpenRouteService, OpenRouteServiceClient>((sp, client) =>
+        services.AddScoped<IPasswordHasher, Pbkdf2PasswordHasher>();
+        services.AddScoped<ITokenService, JwtTokenService>();
+        services.AddScoped<IFileStorage, FileStorage>();
+        services.AddHttpClient<IOpenRouteService, OpenRouteServiceClient>((sp, client) =>
         {
             var openRouteOptions = sp.GetRequiredService<IOptions<OpenRouteOptions>>().Value;
             if (!string.IsNullOrWhiteSpace(openRouteOptions.BaseUrl))

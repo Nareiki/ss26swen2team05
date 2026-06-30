@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
-using TourPlanner.Contracts.Persistence;
+using TourPlanner.Application.Contracts.Persistence;
 using TourPlanner.Domain;
+using TourPlanner.Domain.Entities;
 
 namespace TourPlanner.Infrastructure.Persistence;
 

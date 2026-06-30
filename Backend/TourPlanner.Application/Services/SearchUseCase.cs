@@ -2,10 +2,11 @@ using TourPlanner.Application.Common.Exceptions;
 using TourPlanner.Application.Abstractions;
 using TourPlanner.Application.Abstractions.Context;
 using TourPlanner.Application.Abstractions.UseCases;
+using TourPlanner.Application.Contracts.Persistence;
 using TourPlanner.Application.Dtos.TourLogs;
 using TourPlanner.Application.Dtos.Tours;
-using TourPlanner.Contracts.Persistence;
 using TourPlanner.Domain;
+using TourPlanner.Domain.Entities;
 
 namespace TourPlanner.Application.Services;
 

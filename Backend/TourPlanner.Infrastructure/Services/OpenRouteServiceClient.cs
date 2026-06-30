@@ -1,8 +1,7 @@
 using System.Net.Http.Json;
 using System.Text.Json;
 using Microsoft.Extensions.Options;
-using TourPlanner.Contracts.Routing;
-using TourPlanner.Domain;
+using TourPlanner.Application.Contracts.Routing;
 using TourPlanner.Domain.Enums;
 using TourPlanner.Infrastructure.Options;
 

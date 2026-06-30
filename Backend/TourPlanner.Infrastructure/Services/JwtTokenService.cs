@@ -4,11 +4,10 @@ using System.Security.Cryptography;
 using System.Text;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
-using TourPlanner.Application.Dtos.Security;
-using TourPlanner.Domain;
+using TourPlanner.Application.Contracts.Security;
+using TourPlanner.Application.Contracts.Time;
 using TourPlanner.Infrastructure.Options;
-using TourPlanner.Contracts.Security;
-using TourPlanner.Contracts.Time;
+using TourPlanner.Domain.Entities;
 
 namespace TourPlanner.Infrastructure.Services;
 

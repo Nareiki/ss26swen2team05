@@ -1,4 +1,4 @@
-using TourPlanner.Contracts.Time;
+using TourPlanner.Application.Contracts.Time;
 
 namespace TourPlanner.Infrastructure.Services;
 

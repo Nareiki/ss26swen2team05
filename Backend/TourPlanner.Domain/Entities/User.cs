@@ -1,6 +1,4 @@
-using TourPlanner.Domain.Entities;
-
-namespace TourPlanner.Domain;
+namespace TourPlanner.Domain.Entities;
 
 public sealed class User : EntityBase
 {

@@ -1,5 +1,5 @@
 using System.Security.Cryptography;
-using TourPlanner.Contracts.Security;
+using TourPlanner.Application.Contracts.Security;
 
 namespace TourPlanner.Infrastructure.Services;
 

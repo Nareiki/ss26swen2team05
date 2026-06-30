@@ -1,5 +1,5 @@
 using Microsoft.Extensions.Options;
-using TourPlanner.Contracts.Files;
+using TourPlanner.Application.Contracts.Files;
 using TourPlanner.Infrastructure.Options;
 
 namespace TourPlanner.Infrastructure.Services;

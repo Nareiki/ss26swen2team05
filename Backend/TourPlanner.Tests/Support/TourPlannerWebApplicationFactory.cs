@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
-using TourPlanner.Contracts.Persistence;
+using TourPlanner.Application.Contracts.Persistence;
 using TourPlanner.Infrastructure.Persistence;
 using TourPlanner.Domain;
 using TourPlanner.Domain.Entities;

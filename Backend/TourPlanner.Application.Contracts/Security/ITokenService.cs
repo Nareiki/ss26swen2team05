@@ -1,8 +1,8 @@
-using TourPlanner.Application.Dtos.Security;
+using TourPlanner.Domain.Entities;
 
-namespace TourPlanner.Contracts.Security;
+namespace TourPlanner.Application.Contracts.Security;
 
 public interface ITokenService
 {
-    Task<TokenPair> GenerateTokenPairAsync(TourPlanner.Domain.User user, CancellationToken cancellationToken = default);
+    Task<TokenPair> GenerateTokenPairAsync(User user, CancellationToken cancellationToken = default);
 }

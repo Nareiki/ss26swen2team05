@@ -1,4 +1,4 @@
-namespace TourPlanner.Domain;
+namespace TourPlanner.Domain.Metrics;
 
 public sealed record TourMetrics(
     int LogCount,

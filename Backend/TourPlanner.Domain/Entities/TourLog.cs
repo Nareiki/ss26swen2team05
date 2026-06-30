@@ -1,4 +1,4 @@
-namespace TourPlanner.Domain;
+namespace TourPlanner.Domain.Entities;
 
 public sealed class TourLog : EntityBase
 {

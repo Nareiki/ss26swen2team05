@@ -5,19 +5,19 @@ using TourPlanner.Application.Validation.TourLogs;
 using TourPlanner.Application.Validation.Tours;
 using NUnit.Framework;
 using TourPlanner.Application.Abstractions.Context;
+using TourPlanner.Application.Contracts.Files;
+using TourPlanner.Application.Contracts.Persistence;
+using TourPlanner.Application.Contracts.Routing;
+using TourPlanner.Application.Contracts.Security;
+using TourPlanner.Application.Contracts.Time;
 using TourPlanner.Application.Dtos.Tours;
 using TourPlanner.Application.Dtos.Auth;
-using TourPlanner.Application.Dtos.Security;
 using TourPlanner.Application.Dtos.TourLogs;
-using TourPlanner.Contracts.Persistence;
-using TourPlanner.Contracts.Files;
-using TourPlanner.Contracts.Routing;
-using TourPlanner.Contracts.Security;
-using TourPlanner.Contracts.Time;
 using TourPlanner.Domain;
 using TourPlanner.Domain.Entities;
+using TourPlanner.Domain.Metrics;
 using DomainTransportType = TourPlanner.Domain.Enums.TransportType;
-using ContractRoutePlan = TourPlanner.Contracts.Routing.RoutePlan;
+using ContractRoutePlan = TourPlanner.Application.Contracts.Routing.RoutePlan;
 
 namespace TourPlanner.Tests;
 

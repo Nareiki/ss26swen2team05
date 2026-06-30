@@ -1,4 +1,4 @@
-namespace TourPlanner.Contracts.Persistence;
+namespace TourPlanner.Application.Contracts.Persistence;
 
 public interface IUnitOfWork
 {
