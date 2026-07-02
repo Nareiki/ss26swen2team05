@@ -1,51 +1,30 @@
 using FluentValidation;
 using Microsoft.Extensions.DependencyInjection;
-using TourPlanner.Application.Abstractions;
 using TourPlanner.Application.Abstractions.UseCases;
-using TourPlanner.Application.Services;
+using TourPlanner.Application.Common;
+using TourPlanner.Application.Common.Behaviors;
 
 namespace TourPlanner.Application;
 
 public static class DependencyInjection
 {
-    public static IServiceCollection AddTourPlannerApplication(this IServiceCollection services)
-    {
-        services.AddValidatorsFromAssembly(typeof(DependencyInjection).Assembly);
-        services.AddScoped<IRegisterUseCase, RegisterUseCase>();
-        services.AddScoped<ILoginUseCase, LoginUseCase>();
-        services.AddScoped<IRefreshUseCase, RefreshUseCase>();
-        services.AddScoped<ITourUseCase, TourUseCase>();
-        services.AddScoped<ITourLogUseCase, TourLogUseCase>();
-        services.AddScoped<ISearchUseCase, SearchUseCase>();
-        services.AddScoped<IImportExportUseCase, ImportExportUseCase>();
+    public static IServiceCollection AddTourPlannerApplication(this IServiceCollection services) {
+        var assembly = typeof(DependencyInjection).Assembly;
+        
+        services.Scan(scan => scan
+            .FromAssemblies(assembly)
+            .AddClasses(classes => classes.AssignableTo(typeof(IUseCase<,>)))
+            .AsImplementedInterfaces()
+            .WithScopedLifetime()
+        );
+        
+        services.Decorate(typeof(IUseCase<,>), typeof(UseCaseValidatorDecorator<,>));
+        services.Decorate(typeof(IUseCase<>), typeof(UseCaseValidatorDecorator<>));
+        
+        services.AddValidatorsFromAssembly(assembly);
+        
         return services;
     }
-    
-    // public static IServiceCollection AddTourPlannerApplication(this IServiceCollection services)
-    // {
-    //     // 1. Automatically registers all your FluentValidation validators
-    //     services.AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
-    //
-    //     // 2. AUTOMATIC USE CASE SCANNING:
-    //     // Finds all closed, non-abstract classes ending with "UseCase" and 
-    //     // registers them under their respective interfaces (e.g., IRegisterUseCase)
-    //     var useCaseTypes = Assembly.GetExecutingAssembly()
-    //         .GetTypes()
-    //         .Where(t => t.IsClass && !t.IsAbstract && t.Name.EndsWith("UseCase"));
-    //
-    //     foreach (var type in useCaseTypes)
-    //     {
-    //         var interfaceType = type.GetInterfaces()
-    //             .FirstOrDefault(i => i.Name == $"I{type.Name}");
-    //
-    //         if (interfaceType != null)
-    //         {
-    //             services.AddScoped(interfaceType, type);
-    //         }
-    //     }
-    //
-    //     return services;
-    // }
 }
 
 
