@@ -1,7 +1,6 @@
 using FluentValidation;
-using TourPlanner.Application.Dtos.Auth;
 
-namespace TourPlanner.Application.Validation.Auth;
+namespace TourPlanner.Application.UseCases.Auth.Register;
 
 public sealed class RegisterRequestValidator : AbstractValidator<RegisterRequestDto>
 {

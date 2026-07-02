@@ -1,34 +1,30 @@
 using FluentValidation;
 using TourPlanner.Application.Abstractions.UseCases;
+using TourPlanner.Application.Common;
 using TourPlanner.Application.Common.Exceptions;
+using TourPlanner.Application.CommonDtos.Auth;
 using TourPlanner.Application.Contracts.Persistence;
 using TourPlanner.Application.Contracts.Security;
-using TourPlanner.Application.Dtos.Auth;
-using TourPlanner.Domain;
 using TourPlanner.Domain.Entities;
 
-namespace TourPlanner.Application.Services;
+namespace TourPlanner.Application.UseCases.Auth.Login;
 
-public sealed class RegisterUseCase(
-    IValidator<RegisterRequestDto> validator,
+public sealed class LoginUseCase(
     IUserRepository users,
     IPasswordHasher passwordHasher,
     ITokenService tokenService,
     IUserSessionRepository sessions,
-    IUnitOfWork unitOfWork) : IRegisterUseCase
+    IUnitOfWork unitOfWork) : IUseCase<LoginRequestDto, AuthResponseDto>
 {
-    public async Task<AuthResponseDto> ExecuteAsync(RegisterRequestDto request, CancellationToken cancellationToken = default)
+    public async Task<AuthResponseDto> ExecuteAsync(LoginRequestDto request, CancellationToken cancellationToken = default)
     {
-        validator.ValidateAndThrow(request);
+        var user = await users.GetByUserNameAsync(request.UserName, cancellationToken)
+                   ?? throw new TourPlannerUnauthorizedException("Invalid user name or password.");
 
-        var existing = await users.GetByUserNameAsync(request.UserName, cancellationToken);
-        if (existing is not null)
+        if (!passwordHasher.Verify(user.PasswordHash, request.Password))
         {
-            throw new TourPlannerConflictException("The chosen user name is already registered.");
+            throw new TourPlannerUnauthorizedException("Invalid user name or password.");
         }
-
-        var user = User.Create(request.UserName, passwordHasher.Hash(request.Password));
-        await users.AddAsync(user, cancellationToken);
 
         var tokens = await tokenService.GenerateTokenPairAsync(user, cancellationToken);
         await sessions.AddAsync(UserSession.Create(user.Id, tokens.RefreshToken, tokens.ExpiresAt), cancellationToken);

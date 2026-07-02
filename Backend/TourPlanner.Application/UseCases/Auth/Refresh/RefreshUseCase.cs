@@ -1,12 +1,13 @@
 using FluentValidation;
 using TourPlanner.Application.Abstractions.UseCases;
+using TourPlanner.Application.Common;
 using TourPlanner.Application.Common.Exceptions;
+using TourPlanner.Application.CommonDtos.Auth;
 using TourPlanner.Application.Contracts.Persistence;
 using TourPlanner.Application.Contracts.Security;
 using TourPlanner.Application.Contracts.Time;
-using TourPlanner.Application.Dtos.Auth;
 
-namespace TourPlanner.Application.Services;
+namespace TourPlanner.Application.UseCases.Auth.Refresh;
 
 public sealed class RefreshUseCase(
     IValidator<RefreshTokenRequestDto> validator,
@@ -14,12 +15,10 @@ public sealed class RefreshUseCase(
     IClock clock,
     IUserRepository users,
     ITokenService tokenService,
-    IUnitOfWork unitOfWork) : IRefreshUseCase
+    IUnitOfWork unitOfWork) : IUseCase<RefreshTokenRequestDto, AuthResponseDto>
 {
     public async Task<AuthResponseDto> ExecuteAsync(RefreshTokenRequestDto request, CancellationToken cancellationToken = default)
     {
-        validator.ValidateAndThrow(request);
-
         var session = await sessions.GetByRefreshTokenAsync(request.RefreshToken, cancellationToken)
                       ?? throw new TourPlannerUnauthorizedException("The refresh token is invalid or expired.");
 

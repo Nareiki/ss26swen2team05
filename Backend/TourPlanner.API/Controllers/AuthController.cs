@@ -2,16 +2,20 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using TourPlanner.Application.Abstractions;
 using TourPlanner.Application.Abstractions.UseCases;
-using TourPlanner.Application.Dtos.Auth;
+using TourPlanner.Application.Common;
+using TourPlanner.Application.CommonDtos.Auth;
+using TourPlanner.Application.UseCases.Auth.Login;
+using TourPlanner.Application.UseCases.Auth.Refresh;
+using TourPlanner.Application.UseCases.Auth.Register;
 
 namespace TourPlanner.API.Controllers;
 
 [ApiController]
 [Route("api/auth")]
 public sealed class AuthController(
-    IRegisterUseCase registerUseCase,
-    ILoginUseCase loginUseCase,
-    IRefreshUseCase refreshUseCase
+    IUseCase<RegisterRequestDto, AuthResponseDto> registerUseCase,
+    IUseCase<LoginRequestDto, AuthResponseDto> loginUseCase,
+    IUseCase<RefreshTokenRequestDto, AuthResponseDto> refreshUseCase
     ) : ControllerBase
 {
     [HttpPost("register")]
