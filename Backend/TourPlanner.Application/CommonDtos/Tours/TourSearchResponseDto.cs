@@ -1,7 +1,6 @@
+using TourPlanner.Application.CommonDtos.TourLogs;
 
-using TourPlanner.Application.Dtos.TourLogs;
-
-namespace TourPlanner.Application.Dtos.Tours;
+namespace TourPlanner.Application.CommonDtos.Tours;
 
 public sealed record TourSearchResponseDto(IReadOnlyList<TourSummaryResponseDto> Tours, IReadOnlyList<TourLogResponseDto> TourLogs);
 

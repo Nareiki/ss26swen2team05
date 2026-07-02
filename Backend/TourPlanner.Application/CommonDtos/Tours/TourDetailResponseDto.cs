@@ -1,7 +1,7 @@
-using TourPlanner.Application.Dtos.TourLogs;
+using TourPlanner.Application.CommonDtos.TourLogs;
 using TourPlanner.Domain.Enums;
 
-namespace TourPlanner.Application.Dtos.Tours;
+namespace TourPlanner.Application.CommonDtos.Tours;
 
 public sealed record TourDetailResponseDto(
     Guid Id,

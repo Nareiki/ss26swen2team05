@@ -1,6 +1,6 @@
 using TourPlanner.Domain.Enums;
 
-namespace TourPlanner.Application.Dtos.Tours;
+namespace TourPlanner.Application.CommonDtos.Tours;
 
 public sealed record TourSummaryResponseDto(
     Guid Id,

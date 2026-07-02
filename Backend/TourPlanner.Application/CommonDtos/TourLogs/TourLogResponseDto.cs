@@ -1,4 +1,4 @@
-namespace TourPlanner.Application.Dtos.TourLogs;
+namespace TourPlanner.Application.CommonDtos.TourLogs;
 
 public sealed record TourLogResponseDto(
     Guid Id,
