@@ -3,7 +3,7 @@ import { Tour, TransportType } from '../models/tour';
 export const MOCK_TOURS: Tour[] = [
   {
     id: 1,
-    userId: 1,
+    userId: "1",
     name: 'Wien → Graz',
     description: 'Classic Austrian road trip through Semmering pass',
     from: 'Wien',
@@ -21,7 +21,7 @@ export const MOCK_TOURS: Tour[] = [
   },
   {
     id: 2,
-    userId: 1,
+    userId: "1",
     name: 'Innsbruck Trail',
     description: 'Mountain hike through the Nordkette range',
     from: 'Innsbruck Hauptbahnhof',
@@ -39,7 +39,7 @@ export const MOCK_TOURS: Tour[] = [
   },
   {
     id: 3,
-    userId: 1,
+    userId: "1",
     name: 'Donaukanal Run',
     description: 'Morning run along the Donaukanal in Vienna',
     from: 'Schwedenplatz',
@@ -57,7 +57,7 @@ export const MOCK_TOURS: Tour[] = [
   },
   {
     id: 4,
-    userId: 2,
+    userId: "2",
     name: 'Salzburg City Walk',
     description: 'Vacation walk through the old town',
     from: 'Mirabell Palace',

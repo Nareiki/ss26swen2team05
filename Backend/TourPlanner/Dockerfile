@@ -10,7 +10,7 @@ WORKDIR /src
 COPY ["TourPlanner/TourPlanner.csproj", "TourPlanner/"]
 COPY ["TourPlanner.API/TourPlanner.API.csproj", "TourPlanner.API/"]
 COPY ["TourPlanner.Application/TourPlanner.Application.csproj", "TourPlanner.Application/"]
-COPY ["TourPlanner.Contracts/TourPlanner.Contracts.csproj", "TourPlanner.Contracts/"]
+COPY ["TourPlanner.Application.Contracts/TourPlanner.Application.Contracts.csproj", "TourPlanner.Application.Contracts/"]
 COPY ["TourPlanner.Domain/TourPlanner.Domain.csproj", "TourPlanner.Domain/"]
 COPY ["TourPlanner.Infrastructure/TourPlanner.Infrastructure.csproj", "TourPlanner.Infrastructure/"]
 RUN dotnet restore "TourPlanner/TourPlanner.csproj"

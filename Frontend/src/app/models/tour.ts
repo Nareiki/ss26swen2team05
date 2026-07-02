@@ -1,6 +1,6 @@
 export interface Tour {
   id: number;
-  userId: number;
+  userId: string;
   name: string;
   description: string;
   from: string;

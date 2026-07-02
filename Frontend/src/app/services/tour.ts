@@ -49,7 +49,7 @@ export class TourService {
     }
   }
 
-  getToursByUser(userId: number): Tour[] {
+  getToursByUser(userId: string): Tour[] {
     return this.tours().filter(t => t.userId === userId);
   }
 
@@ -139,7 +139,7 @@ export class TourService {
 
   // ── Search ──
 
-  searchTours(query: string, userId?: number): Tour[] {
+  searchTours(query: string, userId?: string): Tour[] {
     const q = query.toLowerCase().trim();
     let tours = userId ? this.getToursByUser(userId) : this.tours();
     if (!q) return tours;

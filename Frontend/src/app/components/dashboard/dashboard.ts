@@ -39,7 +39,7 @@ export class DashboardComponent {
   tours = computed(() => {
     const all = this.tourService.allTours();
     const user = this.authService.getCurrentUser();
-    if (user) return all.filter(t => t.userId === user.id);
+    if (user) return all.filter(t => t.userId === user.userId);
     return all;
   });
 
@@ -50,7 +50,7 @@ export class DashboardComponent {
     return allLogs.filter(l => l.tourId === tour.id);
   });
 
-  currentUserId = computed(() => this.authService.getCurrentUser()?.id ?? 1);
+  currentUserId = computed(() => this.authService.getCurrentUser()?.userId ?? '');
 
   showDrawer = computed(() => {
     return this.selectedTour() !== null || this.bottomPanel() !== 'detail';

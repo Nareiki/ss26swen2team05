@@ -3,7 +3,6 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AuthService } from '../../services/auth';
-import { User } from '../../models/user';
 import { PopupComponent } from '../shared/popup/popup';
 
 @Component({
@@ -43,13 +42,17 @@ export class AuthComponent {
       return;
     }
 
-    const success = this.authService.login(this.loginUsername, this.loginPassword);
-
-    if (success) {
-      this.router.navigate(['/dashboard']); // adjust route as needed
-    } else {
-      this.errorMessage = 'Invalid username or password.';
-    }
+    this.authService.login(this.loginUsername, this.loginPassword).subscribe({
+      next: () => {
+        this.router.navigate(['/dashboard']); // adjust route as needed
+      },
+      error: (err) => {
+        this.errorMessage =
+          err.status === 401
+            ? 'Invalid username or password.'
+            : 'Login failed. Please try again.';
+      },
+    });
   }
 
   onRegister(): void {
@@ -64,36 +67,36 @@ export class AuthComponent {
       this.errorMessage = 'Please fill in all fields.';
       return;
     }
-
     if (this.registerPassword.length < 4) {
       this.errorMessage = 'Password must be at least 4 characters.';
       return;
     }
-
     if (this.registerPassword !== this.registerPasswordConfirm) {
       this.errorMessage = 'Passwords do not match.';
       return;
     }
 
-    const newUser: User = {
-      id: 0,
-      username: this.registerUsername,
-      password: this.registerPassword,
-    };
+    this.authService.register(this.registerUsername, this.registerPassword).subscribe({
+      next: () => {
+        this.successMessage = 'Account created! Switching to login…';
+        this.registerUsername = '';
+        this.registerPassword = '';
+        this.registerPasswordConfirm = '';
+        this.showPopup = true;
 
-    this.authService.register(newUser);
-
-    this.successMessage = 'Account created! Switching to login…';
-    this.registerUsername = '';
-    this.registerPassword = '';
-    this.registerPasswordConfirm = '';
-
-    this.showPopup = true;
-    setTimeout(() => {
-      this.showPopup = false;
-      this.successMessage = '';
-      this.isRegisterMode = false;
-    }, 5000);
+        setTimeout(() => {
+          this.showPopup = false;
+          this.successMessage = '';
+          this.isRegisterMode = false;
+        }, 5000);
+      },
+      error: (err) => {
+        this.errorMessage =
+          err.status === 409
+            ? 'Username already taken.'
+            : 'Registration failed. Please try again.';
+      },
+    });
   }
 
   onPopupConfirm() {

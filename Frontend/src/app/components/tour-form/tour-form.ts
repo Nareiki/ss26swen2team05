@@ -17,7 +17,7 @@ import { OpenRouteService } from '../../services/open-route';
 export class TourFormComponent implements OnInit {
 
   @Input() tour: Tour | null = null;
-  @Input() userId: number = 1;
+  @Input() userId: string = "1";
 
   @Output() tourSaved = new EventEmitter<Tour>();
   @Output() cancel = new EventEmitter<void>();
