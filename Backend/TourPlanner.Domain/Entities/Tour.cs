@@ -1,4 +1,5 @@
 using TourPlanner.Domain.Enums;
+using TourPlanner.Domain.Metrics;
 
 namespace TourPlanner.Domain.Entities;
 
@@ -102,6 +103,15 @@ public sealed class Tour : EntityBase
         Popularity = Math.Max(0, popularity);
         ChildFriendliness = Math.Clamp(childFriendliness, 0, 100);
         Touch();
+    }
+
+    public void RecalculateMetrics(IEnumerable<TourLog> logs) {
+        
+        Guard.AgainstNull(logs, nameof(logs));
+        
+        var metrics = TourMetricsCalculator.Calculate(logs);
+        
+        UpdateMetrics(metrics.Popularity, metrics.ChildFriendliness);
     }
 
     public void UpdateImagePath(string? imagePath)

@@ -25,5 +25,12 @@ public static class Guard
             throw new ArgumentOutOfRangeException(name, value, $"{name} must be between {min} and {max}.");
         }
     }
+
+    public static void AgainstNull(object? value, string name) {
+        if (value == null) 
+        {
+            throw new ArgumentNullException(name, $"{name} cannot be null.");
+        }
+    }
 }
 
