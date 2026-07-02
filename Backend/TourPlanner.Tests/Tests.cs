@@ -1,8 +1,3 @@
-using TourPlanner.Application.Abstractions;
-using TourPlanner.Application.Services;
-using TourPlanner.Application.Validation.Auth;
-using TourPlanner.Application.Validation.TourLogs;
-using TourPlanner.Application.Validation.Tours;
 using NUnit.Framework;
 using TourPlanner.Application.Abstractions.Context;
 using TourPlanner.Application.Contracts.Files;
@@ -10,9 +5,12 @@ using TourPlanner.Application.Contracts.Persistence;
 using TourPlanner.Application.Contracts.Routing;
 using TourPlanner.Application.Contracts.Security;
 using TourPlanner.Application.Contracts.Time;
-using TourPlanner.Application.Dtos.Tours;
-using TourPlanner.Application.Dtos.Auth;
-using TourPlanner.Application.Dtos.TourLogs;
+using TourPlanner.Application.UseCases.Auth.Login;
+using TourPlanner.Application.UseCases.Auth.Register;
+using TourPlanner.Application.UseCases.TourLogs.CreateTourLog;
+using TourPlanner.Application.UseCases.TourLogs.UpdateTourLog;
+using TourPlanner.Application.UseCases.Tours.CreateTour;
+using TourPlanner.Application.UseCases.Tours.UpdateTour;
 using TourPlanner.Domain;
 using TourPlanner.Domain.Entities;
 using TourPlanner.Domain.Metrics;
@@ -39,7 +37,7 @@ public sealed class Tests
             Assert.That(users.Users, Has.Count.EqualTo(1));
             Assert.That(sessions.Sessions, Has.Count.EqualTo(1));
 
-            var loginUseCase = new LoginUseCase(new LoginRequestValidator(), users, new FakePasswordHasher(), new FakeTokenService(clock), sessions, new FakeUnitOfWork());
+            var loginUseCase = new LoginUseCase(users, new FakePasswordHasher(), new FakeTokenService(clock), sessions, new FakeUnitOfWork());
             var loggedIn = await loginUseCase.ExecuteAsync(new LoginRequestDto("alice", "secret123"));
             Assert.That(loggedIn.UserName, Is.EqualTo("alice"));
             Assert.That(sessions.Sessions, Has.Count.EqualTo(2));
@@ -55,11 +53,10 @@ public sealed class Tests
             var user = User.Create("alice", "hash");
             _ = new InMemoryUserRepository(user);
             var tours = new InMemoryTourRepository();
-            var tourLogs = new InMemoryTourLogRepository();
             var currentUser = new FakeCurrentUserContext(user.Id, user.UserName);
-            var useCase = new TourUseCase(new CreateTourRequestValidator(), new UpdateTourRequestValidator(), tours, tourLogs, new FixedRouteService(), new NoOpFileStorage(), currentUser, new FakeUnitOfWork());
+            var useCase = new CreateTourUseCase(tours, new FixedRouteService(), currentUser, new FakeUnitOfWork());
 
-            var result = await useCase.CreateAsync(new CreateTourRequestDto("City Loop", "A short city tour", "Vienna", "Graz", DomainTransportType.Bicycling));
+            var result = await useCase.ExecuteAsync(new CreateTourRequest("City Loop", "A short city tour", "Vienna", "Graz", DomainTransportType.Bicycling));
 
             Assert.That(result.Name, Is.EqualTo("City Loop"));
             Assert.That(result.DistanceKm, Is.EqualTo(12.4).Within(0.01));
@@ -67,19 +64,20 @@ public sealed class Tests
         }
 
         [Test]
-        public async Task RecommendedTours_OrderByChildFriendlinessThenPopularity()
+        public async Task UpdateTour_UsesRouteServiceAndReturnsUpdatedSummary()
         {
             var user = User.Create("alice", "hash");
-            var tours = new InMemoryTourRepository(
-                CreateTour(user.Id, "A", 1, 90),
-                CreateTour(user.Id, "B", 4, 95),
-                CreateTour(user.Id, "C", 4, 80));
+            var tour = CreateTour(user.Id, "Original", 1, 90);
+            var tours = new InMemoryTourRepository(tour);
             var currentUser = new FakeCurrentUserContext(user.Id, user.UserName);
-            var useCase = new TourUseCase(new CreateTourRequestValidator(), new UpdateTourRequestValidator(), tours, new InMemoryTourLogRepository(), new FixedRouteService(), new NoOpFileStorage(), currentUser, new FakeUnitOfWork());
+            var useCase = new UpdateTourUseCase(tours, new FixedRouteService(), currentUser, new FakeUnitOfWork());
 
-            var recommended = await useCase.GetRecommendedAsync(2);
+            var updated = await useCase.ExecuteAsync(new UpdateTourRequest(tour.Id, "Updated", "Updated desc", "Vienna", "Linz", DomainTransportType.Walking));
 
-            Assert.That(recommended.Select(item => item.Name), Is.EqualTo(new[] { "B", "A" }));
+            Assert.That(updated.Name, Is.EqualTo("Updated"));
+            Assert.That(updated.From, Is.EqualTo("Vienna"));
+            Assert.That(updated.To, Is.EqualTo("Linz"));
+            Assert.That(tour.DistanceKm, Is.EqualTo(12.4).Within(0.01));
         }
 
         private static Tour CreateTour(Guid userId, string name, int popularity, double childFriendliness)
@@ -101,12 +99,31 @@ public sealed class Tests
             var tours = new InMemoryTourRepository(tour);
             var logs = new InMemoryTourLogRepository();
             var currentUser = new FakeCurrentUserContext(user.Id, user.UserName);
-            var useCase = new TourLogUseCase(new CreateTourLogRequestValidator(), new UpdateTourLogRequestValidator(), tours, logs, currentUser, new FakeUnitOfWork());
+            var useCase = new CreateTourLogUseCase(tours, logs, currentUser, new FakeUnitOfWork());
 
-            await useCase.CreateAsync(tour.Id, new CreateTourLogRequestDto(DateTimeOffset.UtcNow, "Nice trip", TourDifficulty.Easy, 5, 60, 5));
+            await useCase.ExecuteAsync(new CreateTourLogRequest(tour.Id, DateTimeOffset.UtcNow, "Nice trip", TourDifficulty.Easy, 5, 60, 5));
 
             Assert.That(tour.Popularity, Is.EqualTo(1));
             Assert.That(tour.ChildFriendliness, Is.LessThanOrEqualTo(100).And.GreaterThanOrEqualTo(0));
+        }
+
+        [Test]
+        public async Task UpdateLog_RecalculatesTourMetrics()
+        {
+            var user = User.Create("alice", "hash");
+            var tour = Tour.Create(user.Id, "Tour", "desc", "A", "B", DomainTransportType.Walking, 5, 60, "route");
+            var tours = new InMemoryTourRepository(tour);
+            var logs = new InMemoryTourLogRepository();
+            var currentUser = new FakeCurrentUserContext(user.Id, user.UserName);
+            var createUseCase = new CreateTourLogUseCase(tours, logs, currentUser, new FakeUnitOfWork());
+            var created = await createUseCase.ExecuteAsync(new CreateTourLogRequest(tour.Id, DateTimeOffset.UtcNow, "Nice trip", TourDifficulty.Easy, 5, 60, 5));
+
+            var updateUseCase = new UpdateTourLogUseCase(tours, logs, currentUser, new FakeUnitOfWork());
+            var updated = await updateUseCase.ExecuteAsync(new UpdateTourLogRequest(logs.Items[0].Id, DateTimeOffset.UtcNow.AddDays(1), "Better trip", TourDifficulty.Medium, 7, 90, 4));
+
+            Assert.That(created.Comment, Is.EqualTo("Nice trip"));
+            Assert.That(updated.Comment, Is.EqualTo("Better trip"));
+            Assert.That(tour.Popularity, Is.EqualTo(1));
         }
     }
 
@@ -216,6 +233,9 @@ public sealed class Tests
 
         public Task<IReadOnlyList<TourLog>> GetByTourIdAsync(Guid tourId, Guid userId, CancellationToken cancellationToken = default)
             => Task.FromResult((IReadOnlyList<TourLog>)Items.Where(log => log.TourId == tourId).ToList());
+
+        public Task<IReadOnlyList<TourLog>> GetByUserIdAsync(Guid userId, CancellationToken cancellationToken = default)
+            => Task.FromResult((IReadOnlyList<TourLog>)Items.ToList());
 
         public Task AddAsync(TourLog tourLog, CancellationToken cancellationToken = default)
         {

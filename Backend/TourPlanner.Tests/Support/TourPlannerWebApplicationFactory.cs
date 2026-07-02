@@ -5,7 +5,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using TourPlanner.Application.Contracts.Persistence;
 using TourPlanner.Infrastructure.Persistence;
-using TourPlanner.Domain;
 using TourPlanner.Domain.Entities;
 
 namespace TourPlanner.Tests.Support;
@@ -142,6 +141,9 @@ public sealed class TourPlannerWebApplicationFactory : WebApplicationFactory<Pro
 
         public Task<IReadOnlyList<TourLog>> GetByTourIdAsync(Guid tourId, Guid userId, CancellationToken cancellationToken = default)
             => Task.FromResult((IReadOnlyList<TourLog>)Items.Where(log => log.TourId == tourId).ToList());
+
+        public Task<IReadOnlyList<TourLog>> GetByUserIdAsync(Guid userId, CancellationToken cancellationToken = default)
+            => Task.FromResult((IReadOnlyList<TourLog>)Items.ToList());
 
         public Task AddAsync(TourLog tourLog, CancellationToken cancellationToken = default)
         {
