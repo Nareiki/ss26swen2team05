@@ -1,9 +1,8 @@
 using FluentValidation;
-using TourPlanner.Application.Dtos.TourLogs;
 
-namespace TourPlanner.Application.Validation.TourLogs;
+namespace TourPlanner.Application.UseCases.TourLogs.CreateTourLog;
 
-public sealed class CreateTourLogRequestValidator : AbstractValidator<CreateTourLogRequestDto>
+public sealed class CreateTourLogRequestValidator : AbstractValidator<CreateTourLogRequest>
 {
     public CreateTourLogRequestValidator()
     {
