@@ -16,6 +16,9 @@ public static class DependencyInjection
             .AddClasses(classes => classes.AssignableTo(typeof(IUseCase<,>)))
             .AsImplementedInterfaces()
             .WithScopedLifetime()
+            .AddClasses(classes => classes.AssignableTo(typeof(IUseCase<>)))
+            .AsImplementedInterfaces()
+            .WithScopedLifetime()
         );
         
         services.Decorate(typeof(IUseCase<,>), typeof(UseCaseValidatorDecorator<,>));
