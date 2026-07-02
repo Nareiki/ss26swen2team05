@@ -19,6 +19,13 @@ public sealed class TourLogRepository(TourPlannerDbContext dbContext) : ITourLog
             .OrderByDescending(log => log.AccomplishedAt)
             .ToListAsync(cancellationToken);
 
+    public async Task<IReadOnlyList<TourLog>> GetByUserIdAsync(Guid userId, CancellationToken cancellationToken = default)
+        => await dbContext.TourLogs
+            .Include(log => log.Tour)
+            .Where(log => log.Tour.UserId == userId)
+            .OrderByDescending(log => log.AccomplishedAt)
+            .ToListAsync(cancellationToken);
+    
     public Task AddAsync(TourLog tourLog, CancellationToken cancellationToken = default)
         => dbContext.TourLogs.AddAsync(tourLog, cancellationToken).AsTask();
 
