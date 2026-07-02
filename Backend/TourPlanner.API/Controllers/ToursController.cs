@@ -1,64 +1,79 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using TourPlanner.Application.Abstractions;
 using TourPlanner.Application.Abstractions.UseCases;
-using TourPlanner.Application.Dtos.Tours;
+using TourPlanner.Application.CommonDtos.Tours;
+using TourPlanner.Application.UseCases.Tours.CreateTour;
+using TourPlanner.Application.UseCases.Tours.DeleteTour;
+using TourPlanner.Application.UseCases.Tours.GetAllTours;
+using TourPlanner.Application.UseCases.Tours.GetRecommendedTours;
+using TourPlanner.Application.UseCases.Tours.GetTourById;
+using TourPlanner.Application.UseCases.Tours.GetTourInsights;
+using TourPlanner.Application.UseCases.Tours.UpdateTour;
+using TourPlanner.Application.UseCases.Tours.UploadTourImage;
 
 namespace TourPlanner.API.Controllers;
 
 [ApiController]
 [Authorize]
 [Route("api/tours")]
-public sealed class ToursController(ITourUseCase tourUseCase) : ControllerBase
+public sealed class ToursController(
+    IUseCase<GetAllToursRequest, IReadOnlyList<TourSummaryResponseDto>> getAllUseCase,
+    IUseCase<GetTourByIdRequest, TourDetailResponseDto> getByIdUseCase,
+    IUseCase<CreateTourRequest, TourSummaryResponseDto> createUseCase,
+    IUseCase<UpdateTourRequest, TourSummaryResponseDto> updateUseCase,
+    IUseCase<DeleteTourRequest> deleteUseCase,
+    IUseCase<GetRecommendedToursRequest, IReadOnlyList<TourSummaryResponseDto>> getRecommendationsUseCase,
+    IUseCase<GetTourInsightsRequest, TourInsightResponseDto> getInsightsUseCase,
+    IUseCase<UploadTourImageRequest, UploadTourImageResponseDto> uploadImageUseCase
+    ) : ControllerBase
 {
     [HttpGet]
-    public async Task<ActionResult<IReadOnlyList<TourSummaryResponseDto>>> GetAll(CancellationToken cancellationToken)
-        => Ok(await tourUseCase.GetAllAsync(cancellationToken));
+    public async Task<ActionResult<IReadOnlyList<TourSummaryResponseDto>>> GetAll(CancellationToken ct)
+        => Ok(await getAllUseCase.ExecuteAsync(new GetAllToursRequest(), ct));
 
     [HttpGet("{tourId:guid}")]
-    public async Task<ActionResult<TourDetailResponseDto>> GetById(Guid tourId, CancellationToken cancellationToken)
-        => Ok(await tourUseCase.GetByIdAsync(tourId, cancellationToken));
+    public async Task<ActionResult<TourDetailResponseDto>> GetById(Guid tourId, CancellationToken ct)
+        => Ok(await getByIdUseCase.ExecuteAsync(new GetTourByIdRequest(tourId), ct));
 
     [HttpPost]
-    public async Task<ActionResult<TourSummaryResponseDto>> Create([FromBody] CreateTourRequestDto requestDto, CancellationToken cancellationToken)
+    public async Task<ActionResult<TourSummaryResponseDto>> Create([FromBody] CreateTourRequest request, CancellationToken ct)
     {
-        var created = await tourUseCase.CreateAsync(requestDto, cancellationToken);
+        var created = await createUseCase.ExecuteAsync(request, ct);
         return CreatedAtAction(nameof(GetById), new { tourId = created.Id }, created);
     }
 
     [HttpPut("{tourId:guid}")]
-    public async Task<ActionResult<TourSummaryResponseDto>> Update(Guid tourId, [FromBody] UpdateTourRequestDto requestDto, CancellationToken cancellationToken)
-        => Ok(await tourUseCase.UpdateAsync(tourId, requestDto, cancellationToken));
+    public async Task<ActionResult<TourSummaryResponseDto>> Update(Guid tourId, [FromBody] UpdateTourRequest request, CancellationToken ct)
+        => Ok(await updateUseCase.ExecuteAsync(request with { TourId = tourId }, ct));
 
     [HttpDelete("{tourId:guid}")]
-    public async Task<IActionResult> Delete(Guid tourId, CancellationToken cancellationToken)
+    public async Task<IActionResult> Delete(Guid tourId, CancellationToken ct)
     {
-        await tourUseCase.DeleteAsync(tourId, cancellationToken);
+        await deleteUseCase.ExecuteAsync(new DeleteTourRequest(tourId), ct);
         return NoContent();
     }
 
     [HttpGet("recommendations")]
-    public async Task<ActionResult<IReadOnlyList<TourSummaryResponseDto>>> GetRecommendations([FromQuery] int take = 5, CancellationToken cancellationToken = default)
-        => Ok(await tourUseCase.GetRecommendedAsync(take, cancellationToken));
+    public async Task<ActionResult<IReadOnlyList<TourSummaryResponseDto>>> GetRecommendations([FromQuery] int take = 5, CancellationToken ct = default)
+        => Ok(await getRecommendationsUseCase.ExecuteAsync(new GetRecommendedToursRequest(take), ct));
 
     [HttpGet("{tourId:guid}/insights")]
-    public async Task<ActionResult<TourInsightResponseDto>> GetInsights(Guid tourId, CancellationToken cancellationToken)
-        => Ok(await tourUseCase.GetInsightsAsync(tourId, cancellationToken));
+    public async Task<ActionResult<TourInsightResponseDto>> GetInsights(Guid tourId, CancellationToken ct)
+        => Ok(await getInsightsUseCase.ExecuteAsync(new GetTourInsightsRequest(tourId), ct));
 
     [HttpPost("{tourId:guid}/image")]
     [RequestSizeLimit(10_000_000)]
-    public async Task<ActionResult<UploadTourImageResponseDto>> UploadImage(Guid tourId, [FromForm] IFormFile file, CancellationToken cancellationToken)
+    public async Task<ActionResult<UploadTourImageResponseDto>> UploadImage(Guid tourId, [FromForm] IFormFile file, CancellationToken ct)
     {
-        if (file.Length <= 0)
-        {
+        if (file.Length <= 0) {
             return BadRequest("The uploaded file is empty.");
         }
 
-        await using var stream = new MemoryStream();
-        await file.CopyToAsync(stream, cancellationToken);
-        var response = await tourUseCase.UploadImageAsync(tourId, file.FileName, stream.ToArray(), cancellationToken);
-        return Ok(response);
+        using var memoryStream = new MemoryStream();
+        await file.CopyToAsync(memoryStream, ct);
+
+        var request = new UploadTourImageRequest(tourId, file.FileName, memoryStream.ToArray());
+        return Ok(await uploadImageUseCase.ExecuteAsync(request, ct));
     }
 }
-

@@ -1,8 +1,9 @@
 using TourPlanner.Domain.Enums;
 
-namespace TourPlanner.Application.Dtos.Tours;
+namespace TourPlanner.Application.UseCases.Tours.UpdateTour;
 
-public sealed record UpdateTourRequestDto(
+public sealed record UpdateTourRequest(
+    Guid TourId,
     string Name,
     string Description,
     string From,

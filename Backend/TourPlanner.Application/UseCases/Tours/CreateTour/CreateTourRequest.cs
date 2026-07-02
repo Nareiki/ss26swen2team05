@@ -1,6 +1,6 @@
-namespace TourPlanner.Application.Dtos.Tours;
+namespace TourPlanner.Application.UseCases.Tours.CreateTour;
 
-public sealed record CreateTourRequestDto(
+public sealed record CreateTourRequest(
     string Name,
     string Description,
     string From,
