@@ -59,14 +59,14 @@ public sealed class TourPlannerDbContext(DbContextOptions<TourPlannerDbContext> 
 
             entity.OwnsOne(tour => tour.FromLocation, navigation =>
             {
-                navigation.Property(coords => coords.Latitude).HasColumnName("FromLatitude").IsRequired(false);
-                navigation.Property(coords => coords.Longitude).HasColumnName("FromLongitude").IsRequired(false);
+                navigation.Property(coords => coords.Latitude).HasColumnName("FromLatitude");
+                navigation.Property(coords => coords.Longitude).HasColumnName("FromLongitude");
             });
 
             entity.OwnsOne(tour => tour.ToLocation, navigation =>
             {
-                navigation.Property(coords => coords.Latitude).HasColumnName("ToLatitude").IsRequired(false);
-                navigation.Property(coords => coords.Longitude).HasColumnName("ToLongitude").IsRequired(false);
+                navigation.Property(coords => coords.Latitude).HasColumnName("ToLatitude");
+                navigation.Property(coords => coords.Longitude).HasColumnName("ToLongitude");
             });
         });
 
