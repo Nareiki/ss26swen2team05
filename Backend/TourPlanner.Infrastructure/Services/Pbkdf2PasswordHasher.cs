@@ -21,7 +21,7 @@ public sealed class Pbkdf2PasswordHasher : IPasswordHasher
         return $"{Iterations}.{Convert.ToBase64String(salt)}.{Convert.ToBase64String(hash)}";
     }
 
-    public bool Verify(string providedPassword, string hashedPassword)
+    public bool Verify(string hashedPassword, string providedPassword)
     {
         if (string.IsNullOrWhiteSpace(providedPassword) || string.IsNullOrWhiteSpace(hashedPassword))
         {
