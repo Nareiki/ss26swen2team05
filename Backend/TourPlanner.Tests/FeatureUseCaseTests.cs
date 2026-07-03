@@ -377,6 +377,29 @@ public sealed class FeatureUseCaseTests
         }
 
         [Test]
+        public async Task ExportToursUseCase_ReturnsEmptyJsonWhenUserHasNoTours()
+        {
+            var user = CreateUser();
+            var currentUser = CreateCurrentUser(user);
+
+            var tours = Substitute.For<ITourRepository>();
+            tours.GetByUserIdAsync(user.Id, Arg.Any<CancellationToken>()).Returns(Task.FromResult((IReadOnlyList<Tour>)Array.Empty<Tour>()));
+
+            var tourLogs = Substitute.For<ITourLogRepository>();
+
+            var useCase = new ExportToursUseCase(tours, tourLogs, currentUser);
+            var result = await useCase.ExecuteAsync(new EmptyRequest());
+
+            Assert.That(result.ContentType, Is.EqualTo("application/json"));
+            Assert.That(result.FileName, Does.StartWith("tour-planner-export-").And.EndsWith(".json"));
+
+            var exported = JsonSerializer.Deserialize<List<TourDetailResponseDto>>(Encoding.UTF8.GetString(result.Content), new JsonSerializerOptions(JsonSerializerDefaults.Web));
+            Assert.That(exported, Is.Not.Null);
+            Assert.That(exported, Is.Empty);
+            await tourLogs.DidNotReceive().GetByTourIdAsync(Arg.Any<Guid>(), Arg.Any<Guid>(), Arg.Any<CancellationToken>());
+        }
+
+        [Test]
         public async Task ImportToursUseCase_ImportsToursAndLogs()
         {
             var user = CreateUser();
@@ -458,4 +481,3 @@ public sealed class FeatureUseCaseTests
     private static TourLog CreateLog(Guid tourId, string comment, TourDifficulty difficulty, double distance, double time, int rating)
         => TourLog.Create(tourId, DateTimeOffset.Parse("2026-07-01T08:00:00Z"), comment, difficulty, distance, time, rating);
 }
-
