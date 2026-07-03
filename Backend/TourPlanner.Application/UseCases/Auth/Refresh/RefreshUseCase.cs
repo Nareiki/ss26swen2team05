@@ -10,7 +10,6 @@ using TourPlanner.Application.Contracts.Time;
 namespace TourPlanner.Application.UseCases.Auth.Refresh;
 
 public sealed class RefreshUseCase(
-    IValidator<RefreshTokenRequestDto> validator,
     IUserSessionRepository sessions,
     IClock clock,
     IUserRepository users,
