@@ -8,6 +8,8 @@
     environment:
       ASPNETCORE_ENVIRONMENT: Development
       ASPNETCORE_URLS: http://+:8080
+      DOTNET_SYSTEM_CONSOLE_ALLOW_ANSI_COLOR_REDIRECTION: 1
+      CONSOLE__FormatterName: simple
       ConnectionStrings__DefaultConnection: Host=tour-planner_database;Port=5432;Username=${POSTGRES_USER};Password=${POSTGRES_PASSWORD};Database=${POSTGRES_DB}
       Jwt__Issuer: TourPlanner
       Jwt__Audience: TourPlanner.Client

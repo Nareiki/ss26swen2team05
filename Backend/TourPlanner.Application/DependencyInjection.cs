@@ -24,6 +24,9 @@ public static class DependencyInjection
         services.Decorate(typeof(IUseCase<,>), typeof(UseCaseValidatorDecorator<,>));
         services.Decorate(typeof(IUseCase<>), typeof(UseCaseValidatorDecorator<>));
         
+        services.Decorate(typeof(IUseCase<,>), typeof(UseCaseLoggingDecorator<,>));
+        services.TryDecorate(typeof(IUseCase<>), typeof(UseCaseLoggingDecorator<>));
+        
         services.AddValidatorsFromAssembly(assembly);
         
         return services;
