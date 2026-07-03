@@ -445,6 +445,48 @@ public sealed class FeatureUseCaseTests
             await tourLogs.Received(1).AddAsync(Arg.Is<TourLog>(log => log.Comment == "Imported log"), Arg.Any<CancellationToken>());
             await unitOfWork.Received(1).SaveChangesAsync(Arg.Any<CancellationToken>());
         }
+
+        [Test]
+        public async Task ImportToursUseCase_ImportsTourWithoutLogs()
+        {
+            var user = CreateUser();
+            var currentUser = CreateCurrentUser(user);
+            var importPayload = new List<TourDetailResponseDto>
+            {
+                new(
+                    Guid.NewGuid(),
+                    "Imported tour without logs",
+                    "Imported description",
+                    "Vienna",
+                    "Graz",
+                    DomainTransportType.Hiking,
+                    18.2,
+                    95,
+                    "route-json",
+                    0,
+                    100,
+                    null,
+                    Array.Empty<TourLogResponseDto>())
+            };
+
+            var content = Encoding.UTF8.GetBytes(JsonSerializer.Serialize(importPayload, new JsonSerializerOptions(JsonSerializerDefaults.Web)));
+
+            var tours = Substitute.For<ITourRepository>();
+            tours.AddAsync(Arg.Any<Tour>(), Arg.Any<CancellationToken>()).Returns(Task.CompletedTask);
+
+            var tourLogs = Substitute.For<ITourLogRepository>();
+            var unitOfWork = Substitute.For<IUnitOfWork>();
+            unitOfWork.SaveChangesAsync(Arg.Any<CancellationToken>()).Returns(Task.FromResult(1));
+
+            var useCase = new ImportToursUseCase(tours, tourLogs, currentUser, unitOfWork);
+            var result = await useCase.ExecuteAsync(new ImportToursRequest("import.json", content));
+
+            Assert.That(result.ImportedTours, Is.EqualTo(1));
+            Assert.That(result.ImportedTourLogs, Is.EqualTo(0));
+            await tours.Received(1).AddAsync(Arg.Is<Tour>(tour => tour.UserId == user.Id && tour.Name == "Imported tour without logs"), Arg.Any<CancellationToken>());
+            await tourLogs.DidNotReceive().AddAsync(Arg.Any<TourLog>(), Arg.Any<CancellationToken>());
+            await unitOfWork.Received(1).SaveChangesAsync(Arg.Any<CancellationToken>());
+        }
     }
 
     private static User CreateUser(string userName = "alice") => User.Create(userName, "hash");
