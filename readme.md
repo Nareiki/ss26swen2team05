@@ -141,3 +141,78 @@ npm test
 - The backend serves interactive API docs only in non-production environments.
 - Tour images are stored on disk; the database stores the path, not the file itself.
 - If OpenRouteService is unavailable, the backend falls back to a deterministic route estimate.
+
+# Project protocol
+
+## Tracked time
+
+Backend Implementation : 28h
+Frontend Implementation : 24h
+
+## Git link
+
+[Git Link](https://github.com/Nareiki/ss26swen2team05) 'https://github.com/Nareiki/ss26swen2team05'
+
+### Architecture
+
+The backend follows Clean Architecture:
+
+- **Domain**: entities, value objects, and business rules
+- **Application**: use cases and ports/interfaces
+- **Infrastructure**: EF Core, PostgreSQL, JWT, file storage, routing client
+- **API**: controllers and HTTP contracts
+- **Host**: composition root and DI wiring
+
+The dependency rule is kept strict: outer layers depend inward, while domain code stays independent.
+
+### Use cases
+
+The main use cases are:
+
+- register, login, refresh token, logout
+- create, update, delete, and list tours
+- create, update, delete, and list tour logs
+- search tours and logs, including computed attributes
+- import and export tour data as JSON
+
+### UX
+
+The frontend uses a split dashboard layout with:
+
+- tour list sidebar
+- interactive Leaflet map
+- bottom drawer for tour details and forms
+- reusable map and popup components
+
+Wireframe notes are documented in `Frontend/Protocols/UX_Protocol_Design.md`.
+
+### Library decisions
+
+- **Angular** for the frontend UI
+- **Leaflet** for map rendering
+- **OpenRouteService** for route planning and geocoding
+- **EF Core + Npgsql** for PostgreSQL persistence
+- **NUnit** for backend unit tests
+- **NSubstitute** for better injection Unit testing
+- **log4net** for backend logging
+- **FluentValidation** for Validation outside of the UseCases
+- **Scrutor** for easier Injections into FluidValidation
+- **Scalar** for a swagger implementation - accessible with **localhost:PORT:/scalar/v1**
+
+### Design pattern
+
+The main architectural pattern is a combination of:
+
+- **Repository pattern** for persistence access
+- **Dependency Injection** for swapping implementations
+- **Use-case / application-service pattern** for business workflows
+
+### Unit testing
+
+The backend test suite uses NUnit with in-memory fakes for repositories and services.
+The tests focus on use-case behavior instead of implementation details, which keeps them stable and useful.
+
+### Unique feature
+
+The standout feature is route handling with an OpenRouteService integration and a fallback route estimate,
+plus computed tour metrics such as popularity and child-friendliness.
