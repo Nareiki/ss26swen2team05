@@ -216,3 +216,35 @@ The tests focus on use-case behavior instead of implementation details, which ke
 
 The standout feature is route handling with an OpenRouteService integration and a fallback route estimate,
 plus computed tour metrics such as popularity and child-friendliness.
+
+### Architecture & Design Patterns
+The backend follows a strict Clean Architecture layout matching the traditional UI/BL/DAL framework:
+- **Domain**: Core entities, value objects, and business rules.
+- **Application (Business Logic)**: Use cases and ports/interfaces. Defines its own custom exceptions to prevent implementation-specific leaks.
+- **Infrastructure (DAL)**: EF Core, PostgreSQL, JWT, file storage, and routing clients. Parameterized queries are enforced via EF Core, ensuring the system **does not allow for SQL injection**.
+- **API / Frontend (UI)**: Controllers and HTTP contracts. The Angular client maps directly to the **MVVM pattern** via structured components and data-bound view models.
+
+#### Architectural Diagrams
+
+**Class Diagram:** *docs/Backend-Class-Diagram.puml*
+
+**Use Case Diagram** *./docs/Backend-Use-Case-Diagram.puml*
+
+**Sequence Diagram** *./docs/Backend-Sequence-Diagram.puml*
+
+### UX
+The frontend uses a responsive split dashboard layout that handles window resizing smoothly:
+- Tour list sidebar
+- Interactive Leaflet map
+- Bottom drawer for tour details and forms
+- Reusable map and popup components
+
+*Wireframes and UI design notes can be viewed in the [UX Protocol Design Document](Frontend/Protocols/UX_Protocol_Design.md).*
+
+### Library Decisions & Lessons Learned
+- **Angular & Leaflet**: For UI and map rendering.
+- **EF Core + Npgsql**: For secure PostgreSQL persistence.
+- ... [keep your existing library bullet points] ...
+
+**Lessons Learned:**
+Implementing a strict inward-depending Clean Architecture in .NET 10 taught us the value of separating persistence interfaces from their actual SQL implementations. We also learned how to gracefully handle third-party API rate limits by engineering a deterministic mathematical fallback system for route estimation when OpenRouteService is hitting limits.
