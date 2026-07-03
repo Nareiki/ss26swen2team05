@@ -1,6 +1,5 @@
 using System.Text;
 using System.Text.Json;
-using FluentValidation;
 using NSubstitute;
 using NUnit.Framework;
 using TourPlanner.Application.Abstractions.Context;
@@ -54,13 +53,14 @@ public sealed class FeatureUseCaseTests
 
             var tokenService = Substitute.For<ITokenService>();
             var refreshedExpiresAt = clock.UtcNow.AddHours(1);
+            var accessTokenExpiresAt = clock.UtcNow.AddMinutes(15);
             tokenService.GenerateTokenPairAsync(user, Arg.Any<CancellationToken>())
-                .Returns(Task.FromResult(new TokenPair("new-access", "new-refresh", refreshedExpiresAt)));
+                .Returns(Task.FromResult(new TokenPair("new-access", accessTokenExpiresAt, "new-refresh", refreshedExpiresAt)));
 
             var unitOfWork = Substitute.For<IUnitOfWork>();
             unitOfWork.SaveChangesAsync(Arg.Any<CancellationToken>()).Returns(Task.FromResult(1));
 
-            var useCase = new RefreshUseCase(Substitute.For<IValidator<RefreshTokenRequestDto>>(), sessions, clock, users, tokenService, unitOfWork);
+            var useCase = new RefreshUseCase(sessions, clock, users, tokenService, unitOfWork);
 
             var result = await useCase.ExecuteAsync(new RefreshTokenRequestDto("old-refresh"));
 
@@ -84,7 +84,7 @@ public sealed class FeatureUseCaseTests
             var sessions = Substitute.For<IUserSessionRepository>();
             sessions.GetByRefreshTokenAsync("old-refresh", Arg.Any<CancellationToken>()).Returns(Task.FromResult<UserSession?>(session));
 
-            var useCase = new RefreshUseCase(Substitute.For<IValidator<RefreshTokenRequestDto>>(), sessions, clock, Substitute.For<IUserRepository>(), Substitute.For<ITokenService>(), Substitute.For<IUnitOfWork>());
+            var useCase = new RefreshUseCase(sessions, clock, Substitute.For<IUserRepository>(), Substitute.For<ITokenService>(), Substitute.For<IUnitOfWork>());
 
             Assert.ThrowsAsync<TourPlannerUnauthorizedException>(() => useCase.ExecuteAsync(new RefreshTokenRequestDto("old-refresh")));
         }

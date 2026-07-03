@@ -21,7 +21,9 @@ public sealed class JwtTokenService(IOptions<JwtOptions> options, IClock clock) 
             throw new InvalidOperationException("Jwt:SigningKey is not configured.");
         }
 
-        var expiresAt = clock.UtcNow.AddMinutes(jwtOptions.AccessTokenMinutes);
+        var accessTokenExpiresAt = clock.UtcNow.AddMinutes(jwtOptions.AccessTokenMinutes);
+        var refreshTokenExpiresAt = clock.UtcNow.AddDays(jwtOptions.RefreshTokenDays);
+        Console.WriteLine($"Generating JWT token for user {user.UserName} with expiration at {accessTokenExpiresAt.UtcDateTime} (UTC).");
         var tokenHandler = new JwtSecurityTokenHandler();
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtOptions.SigningKey));
         var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
@@ -39,12 +41,12 @@ public sealed class JwtTokenService(IOptions<JwtOptions> options, IClock clock) 
             audience: jwtOptions.Audience,
             claims: claims,
             notBefore: clock.UtcNow.UtcDateTime,
-            expires: expiresAt.UtcDateTime,
+            expires: accessTokenExpiresAt.UtcDateTime,
             signingCredentials: credentials);
 
         var accessToken = tokenHandler.WriteToken(token);
         var refreshToken = GenerateRefreshToken();
-        var pair = new TokenPair(accessToken, refreshToken, clock.UtcNow.AddDays(jwtOptions.RefreshTokenDays));
+        var pair = new TokenPair(accessToken, refreshTokenExpiresAt, refreshToken, accessTokenExpiresAt);
         return Task.FromResult(pair);
     }
 

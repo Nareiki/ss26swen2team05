@@ -27,9 +27,9 @@ public sealed class LoginUseCase(
         }
 
         var tokens = await tokenService.GenerateTokenPairAsync(user, cancellationToken);
-        await sessions.AddAsync(UserSession.Create(user.Id, tokens.RefreshToken, tokens.ExpiresAt), cancellationToken);
+        await sessions.AddAsync(UserSession.Create(user.Id, tokens.RefreshToken, tokens.RefreshTokenExpiresAt), cancellationToken);
         await unitOfWork.SaveChangesAsync(cancellationToken);
 
-        return new AuthResponseDto(user.Id, user.UserName, tokens.AccessToken, tokens.RefreshToken, tokens.ExpiresAt);
+        return new AuthResponseDto(user.Id, user.UserName, tokens.AccessToken, tokens.RefreshToken, tokens.RefreshTokenExpiresAt);
     }
 }

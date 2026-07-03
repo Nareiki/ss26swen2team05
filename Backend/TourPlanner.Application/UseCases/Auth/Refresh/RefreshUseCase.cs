@@ -1,6 +1,4 @@
-using FluentValidation;
 using TourPlanner.Application.Abstractions.UseCases;
-using TourPlanner.Application.Common;
 using TourPlanner.Application.Common.Exceptions;
 using TourPlanner.Application.CommonDtos.Auth;
 using TourPlanner.Application.Contracts.Persistence;
@@ -30,9 +28,9 @@ public sealed class RefreshUseCase(
                    ?? throw new TourPlannerNotFoundException("The associated user no longer exists.");
 
         var tokens = await tokenService.GenerateTokenPairAsync(user, cancellationToken);
-        session.Renew(tokens.RefreshToken, tokens.ExpiresAt);
+        session.Renew(tokens.RefreshToken, tokens.RefreshTokenExpiresAt);
         await unitOfWork.SaveChangesAsync(cancellationToken);
 
-        return new AuthResponseDto(user.Id, user.UserName, tokens.AccessToken, tokens.RefreshToken, tokens.ExpiresAt);
+        return new AuthResponseDto(user.Id, user.UserName, tokens.AccessToken, tokens.RefreshToken, tokens.AccessTokenExpiresAt);
     }
 }

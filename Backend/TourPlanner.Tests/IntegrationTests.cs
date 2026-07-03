@@ -139,7 +139,7 @@ public sealed class IntegrationTests
     private sealed class FakeTokenService(FakeClock clock) : TourPlanner.Application.Contracts.Security.ITokenService
     {
         public Task<TourPlanner.Application.Contracts.Security.TokenPair> GenerateTokenPairAsync(User user, CancellationToken cancellationToken = default)
-            => Task.FromResult(new TourPlanner.Application.Contracts.Security.TokenPair($"access:{user.UserName}", $"refresh:{user.UserName}:{Guid.NewGuid():N}", clock.UtcNow.AddHours(1)));
+            => Task.FromResult(new TourPlanner.Application.Contracts.Security.TokenPair($"access:{user.UserName}", clock.UtcNow.AddMinutes(15), $"refresh:{user.UserName}:{Guid.NewGuid():N}", clock.UtcNow.AddHours(1)));
     }
 
     private sealed class FakeUnitOfWork : TourPlanner.Application.Contracts.Persistence.IUnitOfWork

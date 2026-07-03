@@ -164,7 +164,7 @@ public sealed class Tests
     private sealed class FakeTokenService(FakeClock clock) : ITokenService
     {
         public Task<TokenPair> GenerateTokenPairAsync(User user, CancellationToken cancellationToken = default)
-            => Task.FromResult(new TokenPair($"access:{user.UserName}", $"refresh:{user.UserName}:{Guid.NewGuid():N}", clock.UtcNow.AddHours(1)));
+            => Task.FromResult(new TokenPair($"access:{user.UserName}", clock.UtcNow.AddMinutes(15), $"refresh:{user.UserName}:{Guid.NewGuid():N}", clock.UtcNow.AddHours(1)));
     }
 
     private sealed class FakeUnitOfWork : IUnitOfWork
