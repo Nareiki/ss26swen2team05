@@ -1,10 +1,9 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using TourPlanner.Application.Abstractions;
 using TourPlanner.Application.Abstractions.UseCases;
-using TourPlanner.Application.Common;
 using TourPlanner.Application.CommonDtos.Auth;
 using TourPlanner.Application.UseCases.Auth.Login;
+using TourPlanner.Application.UseCases.Auth.Logout;
 using TourPlanner.Application.UseCases.Auth.Refresh;
 using TourPlanner.Application.UseCases.Auth.Register;
 
@@ -32,5 +31,16 @@ public sealed class AuthController(
     [AllowAnonymous]
     public async Task<ActionResult<AuthResponseDto>> Refresh([FromBody] RefreshTokenRequestDto request, CancellationToken cancellationToken)
         => Ok(await refreshUseCase.ExecuteAsync(request, cancellationToken));
+    
+    [Authorize]
+    [HttpPost("logout")]
+    public async Task<IActionResult> Logout(
+        [FromBody] LogoutRequest request,
+        [FromServices] IUseCase<LogoutRequest> logoutUseCase,
+        CancellationToken cancellationToken)
+    {
+        await logoutUseCase.ExecuteAsync(request, cancellationToken);
+        return NoContent();
+    }
 }
 
