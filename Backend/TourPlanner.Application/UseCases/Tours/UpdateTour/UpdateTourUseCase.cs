@@ -6,6 +6,7 @@ using TourPlanner.Application.Common.Mapping;
 using TourPlanner.Application.CommonDtos.Tours;
 using TourPlanner.Application.Contracts.Persistence;
 using TourPlanner.Application.Contracts.Routing;
+using TourPlanner.Domain.ValueObjects;
 
 namespace TourPlanner.Application.UseCases.Tours.UpdateTour;
 
@@ -20,6 +21,9 @@ public class UpdateTourUseCase (
 
         var route = await routeService.BuildRouteAsync(request.From, request.To, request.TransportType, cancellationToken);
 
+        var fromLocation = new Coordinates(route.FromLatitude, route.FromLongitude);
+        var toLocation = new Coordinates(route.ToLatitude, route.ToLongitude);
+
         tour.Update(
             request.Name,
             request.Description,
@@ -28,7 +32,10 @@ public class UpdateTourUseCase (
             request.TransportType,
             route.DistanceKm,
             route.EstimatedMinutes,
-            route.RouteInformation);
+            route.RouteInformation,
+            route.GeoJson,
+            fromLocation,
+            toLocation);
 
         await unitOfWork.SaveChangesAsync(cancellationToken);
     

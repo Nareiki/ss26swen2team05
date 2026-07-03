@@ -16,10 +16,13 @@ public sealed class OpenRouteServiceClient(HttpClient httpClient, IOptions<OpenR
             return CreateFallbackRoute(from, to, transportType);
         }
 
+        double[]? fromCoordinates = null;
+        double[]? toCoordinates = null;
+
         try
         {
-            var fromCoordinates = await GeocodeAsync(from, cancellationToken);
-            var toCoordinates = await GeocodeAsync(to, cancellationToken);
+            fromCoordinates = await GeocodeAsync(from, cancellationToken);
+            toCoordinates = await GeocodeAsync(to, cancellationToken);
             var profile = MapProfile(transportType);
             var requestUri = $"/v2/directions/{profile}/geojson";
 
@@ -33,7 +36,7 @@ public sealed class OpenRouteServiceClient(HttpClient httpClient, IOptions<OpenR
             using var response = await httpClient.SendAsync(request, cancellationToken);
             if (!response.IsSuccessStatusCode)
             {
-                return CreateFallbackRoute(from, to, transportType);
+                return CreateFallbackRoute(from, to, transportType, fromCoordinates, toCoordinates);
             }
 
             var json = await response.Content.ReadAsStringAsync(cancellationToken);
@@ -41,11 +44,22 @@ public sealed class OpenRouteServiceClient(HttpClient httpClient, IOptions<OpenR
             var summary = document.RootElement.GetProperty("features")[0].GetProperty("properties").GetProperty("summary");
             var distanceKm = summary.GetProperty("distance").GetDouble() / 1000.0;
             var durationMinutes = summary.GetProperty("duration").GetDouble() / 60.0;
-            return new RoutePlan(distanceKm, durationMinutes, json);
+            
+            var routeInformation = $"Route via {transportType} from {from} to {to}. Distance: {distanceKm:0.#} km. Est. Time: {durationMinutes:0} mins.";
+            
+            return new RoutePlan(
+                distanceKm,
+                durationMinutes,
+                routeInformation,
+                json, 
+                fromCoordinates[1],
+                fromCoordinates[0],
+                toCoordinates[1],
+                toCoordinates[0]);
         }
         catch
         {
-            return CreateFallbackRoute(from, to, transportType);
+            return CreateFallbackRoute(from, to, transportType, fromCoordinates, toCoordinates);
         }
     }
 
@@ -71,13 +85,13 @@ public sealed class OpenRouteServiceClient(HttpClient httpClient, IOptions<OpenR
             TransportType.Hiking => "foot-walking",
             TransportType.Bicycling => "cycling-regular",
             TransportType.Car => "driving-car",
-            TransportType.PublicTransport => "driving-car",
-            TransportType.Train => "driving-car",
-            TransportType.Bus => "driving-car",
+            TransportType.PublicTransport => "public-transport",
+            TransportType.Train => "train",
+            TransportType.Bus => "bus",
             _ => "driving-car"
         };
 
-    private static RoutePlan CreateFallbackRoute(string from, string to, TransportType transportType)
+    private static RoutePlan CreateFallbackRoute(string from, string to, TransportType transportType, double[]? fallbackFrom = null, double[]? fallbackTo = null)
     {
         var distance = Math.Max(1, ((from.Length + to.Length) * 0.75) + ((int)transportType * 1.5));
         var speed = transportType switch
@@ -104,7 +118,19 @@ public sealed class OpenRouteServiceClient(HttpClient httpClient, IOptions<OpenR
             estimatedMinutes = Math.Round(minutes, 2)
         });
 
-        return new RoutePlan(Math.Round(distance, 2), Math.Round(minutes, 2), routeInformation);
+        var fromLat = fallbackFrom != null && fallbackFrom.Length > 1 ? fallbackFrom[1] : 0d;
+        var fromLng = fallbackFrom != null && fallbackFrom.Length > 0 ? fallbackFrom[0] : 0d;
+        var toLat = fallbackTo != null && fallbackTo.Length > 1 ? fallbackTo[1] : 0d;
+        var toLng = fallbackTo != null && fallbackTo.Length > 0 ? fallbackTo[0] : 0d;
+
+        return new RoutePlan(
+            Math.Round(distance, 2),
+            Math.Round(minutes, 2),
+            routeInformation,
+            routeInformation,
+            fromLat,
+            fromLng,
+            toLat,
+            toLng);
     }
 }
-

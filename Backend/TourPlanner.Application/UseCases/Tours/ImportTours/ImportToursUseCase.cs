@@ -29,7 +29,9 @@ public sealed class ImportToursUseCase(
             var tour = Tour.Create(
                 currentUser.UserId, importedTour.Name, importedTour.Description, 
                 importedTour.From, importedTour.To, importedTour.TransportType, 
-                importedTour.DistanceKm, importedTour.EstimatedMinutes, importedTour.RouteInformation);
+                importedTour.DistanceKm, importedTour.EstimatedMinutes, importedTour.RouteInformation,
+                routeGeoJson: null, fromLocation: null, toLocation: null);
+            
             tour.UpdateImagePath(importedTour.ImagePath);
 
             await tours.AddAsync(tour, cancellationToken);

@@ -82,7 +82,18 @@ public sealed class Tests
 
         private static Tour CreateTour(Guid userId, string name, int popularity, double childFriendliness)
         {
-            var tour = Tour.Create(userId, name, "desc", "A", "B", DomainTransportType.Walking, 1, 1, "route");
+            var tour = Tour.Create(userId,
+                name,
+                "desc",
+                "A",
+                "B",
+                DomainTransportType.Walking,
+                1,
+                1,
+                "route",
+                null,
+                null,
+                null);
             tour.UpdateMetrics(popularity, childFriendliness);
             return tour;
         }
@@ -95,7 +106,19 @@ public sealed class Tests
         public async Task CreateLog_RecalculatesTourMetrics()
         {
             var user = User.Create("alice", "hash");
-            var tour = Tour.Create(user.Id, "Tour", "desc", "A", "B", DomainTransportType.Walking, 5, 60, "route");
+            var tour = Tour.Create(
+                user.Id,
+                "Tour",
+                "desc",
+                "A",
+                "B",
+                DomainTransportType.Walking,
+                5,
+                60,
+                "route",
+                null,
+                null,
+                null);
             var tours = new InMemoryTourRepository(tour);
             var logs = new InMemoryTourLogRepository();
             var currentUser = new FakeCurrentUserContext(user.Id, user.UserName);
@@ -111,7 +134,19 @@ public sealed class Tests
         public async Task UpdateLog_RecalculatesTourMetrics()
         {
             var user = User.Create("alice", "hash");
-            var tour = Tour.Create(user.Id, "Tour", "desc", "A", "B", DomainTransportType.Walking, 5, 60, "route");
+            var tour = Tour.Create(
+                user.Id,
+                "Tour",
+                "desc",
+                "A",
+                "B",
+                DomainTransportType.Walking,
+                5,
+                60,
+                "route",
+                null,
+                null,
+                null);
             var tours = new InMemoryTourRepository(tour);
             var logs = new InMemoryTourLogRepository();
             var currentUser = new FakeCurrentUserContext(user.Id, user.UserName);
@@ -261,7 +296,14 @@ public sealed class Tests
     private sealed class FixedRouteService : IOpenRouteService
     {
         public Task<ContractRoutePlan> BuildRouteAsync(string from, string to, DomainTransportType transportType, CancellationToken cancellationToken = default)
-            => Task.FromResult(new ContractRoutePlan(12.4, 38.0, $"{{\"from\":\"{from}\",\"to\":\"{to}\",\"transportType\":\"{transportType}\"}}"));
+            => Task.FromResult(new ContractRoutePlan(
+                12.4,
+                38.0,
+                $"{{\"from\":\"{from}\",\"to\":\"{to}\"}}",
+                "Route Summary Text",
+                48.2082, 16.3738,
+                47.0707, 15.4395
+                ));
     }
 }
 

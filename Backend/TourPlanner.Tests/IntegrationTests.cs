@@ -92,7 +92,18 @@ public sealed class IntegrationTests
     public async Task CreateTourLog_RecalculatesTourMetrics()
     {
         var user = User.Create("log-user", "hash");
-        var tour = Tour.Create(user.Id, "City Walk", "A short walk", "Vienna", "Bratislava", TransportType.Walking, 6, 80, "route");
+        var tour = Tour.Create(user.Id,
+            "City Walk",
+            "A short walk",
+            "Vienna",
+            "Bratislava",
+            TransportType.Walking,
+            6,
+            80,
+            "route",
+            null,
+            null,
+            null);
         var tours = new InMemoryTourRepository(tour);
         var tourLogs = new InMemoryTourLogRepository();
         var currentUser = new FakeCurrentUserContext(user.Id, user.UserName);
@@ -230,7 +241,13 @@ public sealed class IntegrationTests
     private sealed class FixedRouteService : TourPlanner.Application.Contracts.Routing.IOpenRouteService
     {
         public Task<TourPlanner.Application.Contracts.Routing.RoutePlan> BuildRouteAsync(string from, string to, TransportType transportType, CancellationToken cancellationToken = default)
-            => Task.FromResult(new TourPlanner.Application.Contracts.Routing.RoutePlan(12.4, 38.0, $"{{\"from\":\"{from}\",\"to\":\"{to}\",\"transportType\":\"{transportType}\"}}"));
+            => Task.FromResult(new TourPlanner.Application.Contracts.Routing.RoutePlan(12.4,
+                38.0,
+                $"{{\"from\":\"{from}\",\"to\":\"{to}\"}}", 
+                "Route Summary Text",
+                48.2082, 16.3738, 
+                47.0707, 15.4395
+                ));
     }
 }
 

@@ -52,6 +52,22 @@ public sealed class TourPlannerDbContext(DbContextOptions<TourPlannerDbContext> 
             entity.Property(tour => tour.EstimatedMinutes).HasPrecision(18, 2);
             entity.Property(tour => tour.ChildFriendliness).HasPrecision(18, 2);
             entity.HasMany(tour => tour.TourLogs).WithOne(log => log.Tour).HasForeignKey(log => log.TourId).OnDelete(DeleteBehavior.Cascade);
+            
+            entity.Property(tour => tour.RouteGeoJson)
+                .HasColumnType("jsonb")
+                .IsRequired(false);
+
+            entity.OwnsOne(tour => tour.FromLocation, navigation =>
+            {
+                navigation.Property(coords => coords.Latitude).HasColumnName("FromLatitude").IsRequired(false);
+                navigation.Property(coords => coords.Longitude).HasColumnName("FromLongitude").IsRequired(false);
+            });
+
+            entity.OwnsOne(tour => tour.ToLocation, navigation =>
+            {
+                navigation.Property(coords => coords.Latitude).HasColumnName("ToLatitude").IsRequired(false);
+                navigation.Property(coords => coords.Longitude).HasColumnName("ToLongitude").IsRequired(false);
+            });
         });
 
         modelBuilder.Entity<TourLog>(entity =>

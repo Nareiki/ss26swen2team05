@@ -13,5 +13,7 @@ public sealed record TourSummaryResponseDto(
     double EstimatedMinutes,
     int Popularity,
     double ChildFriendliness,
-    string? ImagePath);
+    string? ImagePath,
+    double[]? FromCoords,
+    double[]? ToCoords);
 

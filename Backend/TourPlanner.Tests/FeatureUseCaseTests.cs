@@ -437,7 +437,19 @@ public sealed class FeatureUseCaseTests
 
     private static Tour CreateTour(Guid userId, string name, int popularity, double childFriendliness, string? imagePath = null)
     {
-        var tour = Tour.Create(userId, name, "desc", "A", "B", DomainTransportType.Walking, 1, 1, "route");
+        var tour = Tour.Create(
+            userId,
+            name,
+            "desc",
+            "A",
+            "B",
+            DomainTransportType.Walking,
+            1,
+            1,
+            "route",
+            null,
+            null,
+            null);
         tour.UpdateMetrics(popularity, childFriendliness);
         tour.UpdateImagePath(imagePath);
         return tour;

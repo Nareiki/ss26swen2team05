@@ -1,5 +1,6 @@
 using TourPlanner.Domain.Enums;
 using TourPlanner.Domain.Metrics;
+using TourPlanner.Domain.ValueObjects;
 
 namespace TourPlanner.Domain.Entities;
 
@@ -32,6 +33,11 @@ public sealed class Tour : EntityBase
     public double ChildFriendliness { get; private set; }
 
     public ICollection<TourLog> TourLogs { get; private set; } = new List<TourLog>();
+    
+    public string? RouteGeoJson { get; private set; }
+    
+    public Coordinates? FromLocation { get; private set; }
+    public Coordinates? ToLocation { get; private set; }
 
     private Tour()
     {
@@ -46,7 +52,10 @@ public sealed class Tour : EntityBase
         TransportType transportType,
         double distanceKm,
         double estimatedMinutes,
-        string routeInformation)
+        string routeInformation,
+        string? routeGeoJson,
+        Coordinates? fromLocation,
+        Coordinates? toLocation)
     {
         Guard.NotEmpty(userId, nameof(userId));
         Guard.NotNullOrWhiteSpace(name, nameof(name));
@@ -66,6 +75,9 @@ public sealed class Tour : EntityBase
             DistanceKm = distanceKm,
             EstimatedMinutes = estimatedMinutes,
             RouteInformation = routeInformation.Trim(),
+            RouteGeoJson = routeGeoJson,
+            FromLocation = fromLocation,
+            ToLocation = toLocation,
             Popularity = 0,
             ChildFriendliness = 100d
         };
@@ -79,7 +91,10 @@ public sealed class Tour : EntityBase
         TransportType transportType,
         double distanceKm,
         double estimatedMinutes,
-        string routeInformation)
+        string routeInformation,
+        string? routeGeoJson,
+        Coordinates? fromLocation,
+        Coordinates? toLocation)
     {
         Guard.NotNullOrWhiteSpace(name, nameof(name));
         Guard.NotNullOrWhiteSpace(description, nameof(description));
@@ -95,7 +110,18 @@ public sealed class Tour : EntityBase
         DistanceKm = distanceKm;
         EstimatedMinutes = estimatedMinutes;
         RouteInformation = routeInformation.Trim();
+        
+        RouteGeoJson = routeGeoJson;
+        FromLocation = fromLocation;
+        ToLocation = toLocation;
         Touch();
+    }
+    
+    public void UpdateRoute(string geoJson, Coordinates fromLocation, Coordinates toLocation)
+    {
+        RouteGeoJson = geoJson;
+        FromLocation = fromLocation;
+        ToLocation = toLocation;
     }
 
     public void UpdateMetrics(int popularity, double childFriendliness)
@@ -132,6 +158,10 @@ public sealed class Tour : EntityBase
         Popularity.ToString(),
         ChildFriendliness.ToString("0.##"),
         ImagePath ?? string.Empty,
-        RouteInformation);
+        RouteInformation,
+        FromLocation?.Latitude.ToString("0.####") ?? string.Empty,
+        FromLocation?.Longitude.ToString("0.####") ?? string.Empty,
+        ToLocation?.Latitude.ToString("0.####") ?? string.Empty,
+        ToLocation?.Longitude.ToString("0.####") ?? string.Empty);
 }
 
