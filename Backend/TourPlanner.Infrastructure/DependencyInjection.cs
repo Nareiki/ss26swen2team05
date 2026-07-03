@@ -2,7 +2,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
-using TourPlanner.Application.Abstractions;
 using TourPlanner.Application.Abstractions.Context;
 using TourPlanner.Application.Contracts.Files;
 using TourPlanner.Application.Contracts.Persistence;
@@ -47,6 +46,8 @@ public static class DependencyInjection
                 client.BaseAddress = new Uri(openRouteOptions.BaseUrl);
             }
         });
+
+        services.AddHostedService<DatabaseCleanupService>();
 
         return services;
     }
