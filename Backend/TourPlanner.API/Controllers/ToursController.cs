@@ -8,6 +8,7 @@ using TourPlanner.Application.UseCases.Tours.DeleteTour;
 using TourPlanner.Application.UseCases.Tours.GetAllTours;
 using TourPlanner.Application.UseCases.Tours.GetRecommendedTours;
 using TourPlanner.Application.UseCases.Tours.GetTourById;
+using TourPlanner.Application.UseCases.Tours.GetTourImage;
 using TourPlanner.Application.UseCases.Tours.GetTourInsights;
 using TourPlanner.Application.UseCases.Tours.UpdateTour;
 using TourPlanner.Application.UseCases.Tours.UploadTourImage;
@@ -25,7 +26,8 @@ public sealed class ToursController(
     IUseCase<DeleteTourRequest> deleteUseCase,
     IUseCase<GetRecommendedToursRequest, IReadOnlyList<TourSummaryResponseDto>> getRecommendationsUseCase,
     IUseCase<GetTourInsightsRequest, TourInsightResponseDto> getInsightsUseCase,
-    IUseCase<UploadTourImageRequest, UploadTourImageResponseDto> uploadImageUseCase
+    IUseCase<UploadTourImageRequest, UploadTourImageResponseDto> uploadImageUseCase,
+    IUseCase<GetTourImageRequest, GetTourImageResponse> getImageUseCase
     ) : ControllerBase
 {
     [HttpGet]
@@ -75,5 +77,12 @@ public sealed class ToursController(
 
         var request = new UploadTourImageRequest(tourId, file.FileName, memoryStream.ToArray());
         return Ok(await uploadImageUseCase.ExecuteAsync(request, ct));
+    }
+
+    [HttpGet("{tourId:guid}/image")]
+    public async Task<IActionResult> GetImage(Guid tourId, CancellationToken ct)
+    {
+        var result = await getImageUseCase.ExecuteAsync(new GetTourImageRequest(tourId), ct);
+        return File(result.Content, result.ContentType);
     }
 }

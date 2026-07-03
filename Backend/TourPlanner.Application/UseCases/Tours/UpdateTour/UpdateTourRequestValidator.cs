@@ -23,7 +23,7 @@ public sealed class UpdateTourRequestValidator : AbstractValidator<UpdateTourReq
             .NotEmpty().WithMessage("Destination location is required.");
         
         RuleFor(x => x.TransportType)
-            .NotEmpty().WithMessage("Transport type must be specified.");
+            .IsInEnum().WithMessage("Transport type must be a valid value.");
     }
 }
 

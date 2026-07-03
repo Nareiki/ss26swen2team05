@@ -34,6 +34,7 @@ public sealed class GetTourByIdUseCase(
             tour.Popularity,
             tour.ChildFriendliness,
             tour.ImagePath,
-            mappedLogs);
+            mappedLogs,
+            tour.RouteGeoJson);
     }
 }

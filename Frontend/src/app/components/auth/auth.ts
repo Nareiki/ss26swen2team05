@@ -1,7 +1,8 @@
-import { Component } from '@angular/core';
+import { Component, ChangeDetectorRef, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
+import { HttpErrorResponse } from '@angular/common/http';
 import { AuthService } from '../../services/auth';
 import { PopupComponent } from '../shared/popup/popup';
 
@@ -13,6 +14,8 @@ import { PopupComponent } from '../shared/popup/popup';
   styleUrls: ['./auth.scss'],
 })
 export class AuthComponent {
+  private cdr = inject(ChangeDetectorRef);
+
   isRegisterMode = false;
   showPopup = false;
 
@@ -44,13 +47,11 @@ export class AuthComponent {
 
     this.authService.login(this.loginUsername, this.loginPassword).subscribe({
       next: () => {
-        this.router.navigate(['/dashboard']); // adjust route as needed
+        this.router.navigate(['/dashboard']);
       },
-      error: (err) => {
-        this.errorMessage =
-          err.status === 401
-            ? 'Invalid username or password.'
-            : 'Login failed. Please try again.';
+      error: (err: HttpErrorResponse) => {
+        this.errorMessage = this.extractError(err, 'Invalid username or password.');
+        this.cdr.markForCheck();
       },
     });
   }
@@ -67,12 +68,12 @@ export class AuthComponent {
       this.errorMessage = 'Please fill in all fields.';
       return;
     }
-    if (this.registerPassword.length < 4) {
-      this.errorMessage = 'Password must be at least 4 characters.';
-      return;
-    }
     if (this.registerPassword !== this.registerPasswordConfirm) {
       this.errorMessage = 'Passwords do not match.';
+      return;
+    }
+    if (this.registerPassword.length < 8) {
+      this.errorMessage = 'Passwords must be at least 8 characters.';
       return;
     }
 
@@ -83,18 +84,18 @@ export class AuthComponent {
         this.registerPassword = '';
         this.registerPasswordConfirm = '';
         this.showPopup = true;
+        this.cdr.markForCheck();
 
         setTimeout(() => {
           this.showPopup = false;
           this.successMessage = '';
           this.isRegisterMode = false;
+          this.cdr.markForCheck();
         }, 5000);
       },
-      error: (err) => {
-        this.errorMessage =
-          err.status === 409
-            ? 'Username already taken.'
-            : 'Registration failed. Please try again.';
+      error: (err: HttpErrorResponse) => {
+        this.errorMessage = this.extractError(err, 'Registration failed. Please try again.');
+        this.cdr.markForCheck();
       },
     });
   }
@@ -102,5 +103,15 @@ export class AuthComponent {
   onPopupConfirm() {
     this.showPopup = false;
     this.isRegisterMode = false;
+  }
+
+  private extractError(err: HttpErrorResponse, fallback: string): string {
+    if (err?.error?.error) {
+      return err.error.error;
+    }
+    if (err?.status === 0) {
+      return 'Cannot reach server. Is the backend running?';
+    }
+    return fallback;
   }
 }

@@ -15,14 +15,13 @@ public sealed class TourSearchUseCase(
     public async Task<TourSearchResponseDto> ExecuteAsync(TourSearchRequest request, CancellationToken cancellationToken = default) {
     
         var normalizedQuery = request.Query?.Trim() ?? string.Empty;
-        
-        var tourItemsTask = tours.GetByUserIdAsync(currentUser.UserId, cancellationToken);
-        var logItemsTask = tourLogs.GetByUserIdAsync(currentUser.UserId, cancellationToken);
-        
-        await Task.WhenAll(tourItemsTask, logItemsTask);
 
-        var tourItems = await tourItemsTask;
-        var logItems = await logItemsTask;
+        // Sequential on purpose: both calls share the same scoped DbContext, and EF Core's
+        // DbContext is not thread-safe, so running them concurrently via Task.WhenAll throws
+        // "A second operation was started on this context instance before a previous
+        // operation completed."
+        var tourItems = await tours.GetByUserIdAsync(currentUser.UserId, cancellationToken);
+        var logItems = await tourLogs.GetByUserIdAsync(currentUser.UserId, cancellationToken);
         
         var matchedTours = tourItems
             .Where(tour => Matches(tour.BuildSearchDocument(), normalizedQuery))

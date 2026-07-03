@@ -215,7 +215,9 @@ The tests focus on use-case behavior instead of implementation details, which ke
 ### Unique feature
 
 The standout feature is route handling with an OpenRouteService integration and a fallback route estimate,
-plus computed tour metrics such as popularity and child-friendliness.
+plus computed tour metrics such as popularity and child-friendliness. On the frontend, tours can also be
+planned by clicking directly on the map to set the start and destination — each click reverse-geocodes to a
+place name and triggers a live route preview via OpenRouteService before the tour is even saved.
 
 ### Architecture & Design Patterns
 The backend follows a strict Clean Architecture layout matching the traditional UI/BL/DAL framework:
@@ -226,11 +228,11 @@ The backend follows a strict Clean Architecture layout matching the traditional 
 
 #### Architectural Diagrams
 
-**Class Diagram:** *docs/Backend-Class-Diagram.puml*
+**Class Diagram:** *Documentation/uml_diagram.puml*
 
-**Use Case Diagram** *./docs/Backend-Use-Case-Diagram.puml*
+**Use Case Diagram** *Documentation/UseCaseDiagram.puml*
 
-**Sequence Diagram** *./docs/Backend-Sequence-Diagram.puml*
+**Sequence Diagram** *Documentation/Backend-Sequence-Diagram.puml*
 
 ### UX
 The frontend uses a responsive split dashboard layout that handles window resizing smoothly:

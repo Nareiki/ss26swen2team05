@@ -16,5 +16,6 @@ public sealed record TourDetailResponseDto(
     int Popularity,
     double ChildFriendliness,
     string? ImagePath,
-    IReadOnlyList<TourLogResponseDto> Logs);
+    IReadOnlyList<TourLogResponseDto> Logs,
+    string? RouteGeoJson);
 

@@ -34,7 +34,8 @@ public class ExportToursUseCase (
                 tour.Popularity,
                 tour.ChildFriendliness,
                 tour.ImagePath,
-                logs.Select(log => new TourLogResponseDto(log.Id, log.TourId, log.AccomplishedAt, log.Comment, log.Difficulty, log.TotalDistanceKm, log.TotalTimeMinutes, log.Rating)).ToArray()));
+                logs.Select(log => new TourLogResponseDto(log.Id, log.TourId, log.AccomplishedAt, log.Comment, log.Difficulty, log.TotalDistanceKm, log.TotalTimeMinutes, log.Rating)).ToArray(),
+                tour.RouteGeoJson));
         }
 
         var json = JsonSerializer.Serialize(payload, new JsonSerializerOptions(JsonSerializerDefaults.Web) { WriteIndented = true });

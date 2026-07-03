@@ -15,5 +15,6 @@ public sealed record TourSummaryResponseDto(
     double ChildFriendliness,
     string? ImagePath,
     double[]? FromCoords,
-    double[]? ToCoords);
+    double[]? ToCoords,
+    string? RouteGeoJson);
 

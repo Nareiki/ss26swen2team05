@@ -18,6 +18,7 @@ public sealed class TourSummaryMapper : IMappableToResponse<Tour, TourSummaryRes
         tour.ChildFriendliness, 
         tour.ImagePath,
         tour.FromLocation is not null ? [tour.FromLocation.Latitude, tour.FromLocation.Longitude] : null,
-        tour.ToLocation is not null ? [tour.ToLocation.Latitude, tour.ToLocation.Longitude] : null
+        tour.ToLocation is not null ? [tour.ToLocation.Latitude, tour.ToLocation.Longitude] : null,
+        tour.RouteGeoJson
         );
 }

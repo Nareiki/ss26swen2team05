@@ -25,4 +25,7 @@ RUN dotnet publish "./TourPlanner.csproj" -c $BUILD_CONFIGURATION -o /app/publis
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
+# Pre-create the storage dir owned by the non-root app user so the first-time named-volume
+# mount at /app/storage is seeded from this (writable) directory instead of a root-owned one.
+RUN mkdir -p /app/storage
 ENTRYPOINT ["dotnet", "TourPlanner.dll"]

@@ -30,7 +30,7 @@ public sealed class ImportToursUseCase(
                 currentUser.UserId, importedTour.Name, importedTour.Description, 
                 importedTour.From, importedTour.To, importedTour.TransportType, 
                 importedTour.DistanceKm, importedTour.EstimatedMinutes, importedTour.RouteInformation,
-                routeGeoJson: null, fromLocation: null, toLocation: null);
+                routeGeoJson: importedTour.RouteGeoJson, fromLocation: null, toLocation: null);
             
             tour.UpdateImagePath(importedTour.ImagePath);
 

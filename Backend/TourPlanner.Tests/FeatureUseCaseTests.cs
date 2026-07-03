@@ -422,7 +422,8 @@ public sealed class FeatureUseCaseTests
                     new[]
                     {
                         new TourLogResponseDto(Guid.NewGuid(), Guid.NewGuid(), DateTimeOffset.Parse("2026-07-01T10:00:00Z"), "Imported log", TourDifficulty.Medium, 12, 45, 4)
-                    })
+                    },
+                    null)
             };
 
             var content = Encoding.UTF8.GetBytes(JsonSerializer.Serialize(importPayload, new JsonSerializerOptions(JsonSerializerDefaults.Web)));
@@ -466,7 +467,8 @@ public sealed class FeatureUseCaseTests
                     0,
                     100,
                     null,
-                    Array.Empty<TourLogResponseDto>())
+                    Array.Empty<TourLogResponseDto>(),
+                    null)
             };
 
             var content = Encoding.UTF8.GetBytes(JsonSerializer.Serialize(importPayload, new JsonSerializerOptions(JsonSerializerDefaults.Web)));

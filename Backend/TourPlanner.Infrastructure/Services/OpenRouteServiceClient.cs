@@ -1,5 +1,6 @@
 using System.Net.Http.Json;
 using System.Text.Json;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using TourPlanner.Application.Contracts.Routing;
 using TourPlanner.Domain.Enums;
@@ -7,7 +8,7 @@ using TourPlanner.Infrastructure.Options;
 
 namespace TourPlanner.Infrastructure.Services;
 
-public sealed class OpenRouteServiceClient(HttpClient httpClient, IOptions<OpenRouteOptions> options) : IOpenRouteService
+public sealed class OpenRouteServiceClient(HttpClient httpClient, IOptions<OpenRouteOptions> options, ILogger<OpenRouteServiceClient> logger) : IOpenRouteService
 {
     public async Task<RoutePlan> BuildRouteAsync(string from, string to, TransportType transportType, CancellationToken cancellationToken = default)
     {
@@ -27,7 +28,10 @@ public sealed class OpenRouteServiceClient(HttpClient httpClient, IOptions<OpenR
             var requestUri = $"/v2/directions/{profile}/geojson";
 
             using var request = new HttpRequestMessage(HttpMethod.Post, requestUri);
-            request.Headers.Add("Authorization", options.Value.ApiKey);
+            // ORS expects the raw key with no auth scheme prefix. HttpHeaders.Add() validates
+            // Authorization as a structured "scheme credential" pair and throws FormatException
+            // for a bare value like this — TryAddWithoutValidation skips that client-side parsing.
+            request.Headers.TryAddWithoutValidation("Authorization", options.Value.ApiKey);
             request.Content = JsonContent.Create(new
             {
                 coordinates = new[] { fromCoordinates, toCoordinates }
@@ -36,10 +40,13 @@ public sealed class OpenRouteServiceClient(HttpClient httpClient, IOptions<OpenR
             using var response = await httpClient.SendAsync(request, cancellationToken);
             if (!response.IsSuccessStatusCode)
             {
+                var body = await response.Content.ReadAsStringAsync(cancellationToken);
+                logger.LogWarning("ORS directions request failed with {StatusCode} for profile {Profile}: {Body}", response.StatusCode, profile, body);
                 return CreateFallbackRoute(from, to, transportType, fromCoordinates, toCoordinates);
             }
 
             var json = await response.Content.ReadAsStringAsync(cancellationToken);
+            logger.LogInformation("ORS directions succeeded for {From} -> {To} ({Profile})", from, to, profile);
             using var document = JsonDocument.Parse(json);
             var summary = document.RootElement.GetProperty("features")[0].GetProperty("properties").GetProperty("summary");
             var distanceKm = summary.GetProperty("distance").GetDouble() / 1000.0;
@@ -57,8 +64,9 @@ public sealed class OpenRouteServiceClient(HttpClient httpClient, IOptions<OpenR
                 toCoordinates[1],
                 toCoordinates[0]);
         }
-        catch
+        catch (Exception ex)
         {
+            logger.LogWarning(ex, "ORS routing failed for {From} -> {To}, falling back to estimate", from, to);
             return CreateFallbackRoute(from, to, transportType, fromCoordinates, toCoordinates);
         }
     }
@@ -67,7 +75,7 @@ public sealed class OpenRouteServiceClient(HttpClient httpClient, IOptions<OpenR
     {
         var requestUri = $"/geocode/search?text={Uri.EscapeDataString(location)}&size=1";
         using var request = new HttpRequestMessage(HttpMethod.Get, requestUri);
-        request.Headers.Add("Authorization", options.Value.ApiKey);
+        request.Headers.TryAddWithoutValidation("Authorization", options.Value.ApiKey);
 
         using var response = await httpClient.SendAsync(request, cancellationToken);
         response.EnsureSuccessStatusCode();
@@ -78,6 +86,8 @@ public sealed class OpenRouteServiceClient(HttpClient httpClient, IOptions<OpenR
         return new[] { coordinates[0].GetDouble(), coordinates[1].GetDouble() };
     }
 
+    // ORS only has driving-car, driving-hgv, cycling-*, foot-*, and wheelchair profiles —
+    // there's no public-transport/train/bus profile, so those fall back to driving-car.
     private static string MapProfile(TransportType transportType)
         => transportType switch
         {
@@ -85,9 +95,9 @@ public sealed class OpenRouteServiceClient(HttpClient httpClient, IOptions<OpenR
             TransportType.Hiking => "foot-walking",
             TransportType.Bicycling => "cycling-regular",
             TransportType.Car => "driving-car",
-            TransportType.PublicTransport => "public-transport",
-            TransportType.Train => "train",
-            TransportType.Bus => "bus",
+            TransportType.PublicTransport => "driving-car",
+            TransportType.Train => "driving-car",
+            TransportType.Bus => "driving-car",
             _ => "driving-car"
         };
 

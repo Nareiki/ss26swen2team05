@@ -22,7 +22,7 @@ public sealed class CreateTourRequestValidator : AbstractValidator<CreateTourReq
             .MaximumLength(100).WithMessage("Destination location cannot exceed 100 characters.");
 
         RuleFor(x => x.TransportType)
-            .NotEmpty().WithMessage("Transport type must be specified.");
+            .IsInEnum().WithMessage("Transport type must be a valid value.");
     }
 }
 
